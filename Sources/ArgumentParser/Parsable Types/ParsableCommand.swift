@@ -14,14 +14,14 @@ public protocol ParsableCommand: ParsableArguments {
   /// Configuration for this command, including subcommands and custom help
   /// text.
   static var configuration: CommandConfiguration { get }
-  
+
   /// *For internal use only:* The name for the command on the command line.
   ///
   /// This is generated from the configuration, if given, or from the type
   /// name if not. This is a customization point so that a WrappedParsable
   /// can pass through the wrapped type's name.
   static var _commandName: String { get }
-  
+
   /// The behavior or functionality of this command.
   ///
   /// Implement this method in your `ParsableCommand`-conforming type with the
@@ -34,24 +34,24 @@ public protocol ParsableCommand: ParsableArguments {
 
 // MARK: - Default implementations
 
-extension ParsableCommand {
-  public static var _commandName: String {
+public extension ParsableCommand {
+  static var _commandName: String {
     configuration.commandName ??
-      String(describing: Self.self).convertedToSnakeCase(separator: "-")
+      String(describing: self).convertedToSnakeCase(separator: "-")
   }
-  
-  public static var configuration: CommandConfiguration {
+
+  static var configuration: CommandConfiguration {
     CommandConfiguration()
   }
 
-  public mutating func run() throws {
+  mutating func run() throws {
     throw CleanExit.helpRequest(self)
   }
 }
 
 // MARK: - API
 
-extension ParsableCommand {
+public extension ParsableCommand {
   /// Parses an instance of this type, or one of its subcommands, from
   /// command-line arguments.
   ///
@@ -59,14 +59,14 @@ extension ParsableCommand {
   ///   `arguments` is `nil`, this uses the program's command-line arguments.
   /// - Returns: A new instance of this type, one of its subcommands, or a
   ///   command type internal to the `StackOtterArgParser` library.
-  public static func parseAsRoot(
+  static func parseAsRoot(
     _ arguments: [String]? = nil
   ) throws -> ParsableCommand {
     var parser = CommandParser(self)
     let arguments = arguments ?? Array(CommandLine.arguments.dropFirst())
     return try parser.parse(arguments: arguments).get()
   }
-  
+
   /// Returns the text of the help screen for the given subcommand of this
   /// command.
   ///
@@ -81,11 +81,11 @@ extension ParsableCommand {
   /// - Returns: The full help screen for this type.
   @_disfavoredOverload
   @available(*, deprecated, renamed: "helpMessage(for:includeHidden:columns:)")
-  public static func helpMessage(
-    for subcommand: ParsableCommand.Type,
+  static func helpMessage(
+    for _subcommand: ParsableCommand.Type,
     columns: Int? = nil
-  ) -> String { 
-    helpMessage(for: subcommand, includeHidden: false, columns: columns)
+  ) -> String {
+    helpMessage(for: _subcommand, includeHidden: false, columns: columns)
   }
 
   /// Returns the text of the help screen for the given subcommand of this
@@ -102,15 +102,16 @@ extension ParsableCommand {
   ///     width, or a default value of `80` if the terminal width is not
   ///     available.
   /// - Returns: The full help screen for this type.
-  public static func helpMessage(
+  static func helpMessage(
     for subcommand: ParsableCommand.Type,
     includeHidden: Bool = false,
     columns: Int? = nil
   ) -> String {
     HelpGenerator(
       commandStack: CommandParser(self).commandStack(for: subcommand),
-      visibility: includeHidden ? .hidden : .default)
-        .rendered(screenWidth: columns)
+      visibility: includeHidden ? .hidden : .default
+    )
+    .rendered(screenWidth: columns)
   }
 
   /// Executes this command, or one of its subcommands, with the given
@@ -123,7 +124,19 @@ extension ParsableCommand {
   ///
   /// - Parameter arguments: An array of arguments to use for parsing. If
   ///   `arguments` is `nil`, this uses the program's command-line arguments.
-  public static func main(_ arguments: [String]?) {
+  static func main(_ arguments: [String]?) {
+    #if DEBUG
+      if #available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *) {
+        if let asyncCommand = firstAsyncSubcommand(self) {
+          if Self() is AsyncParsableCommand {
+            failAsyncPlatform(rootCommand: self)
+          } else {
+            failAsyncHierarchy(rootCommand: self, subCommand: asyncCommand)
+          }
+        }
+      }
+    #endif
+
     do {
       var command = try parseAsRoot(arguments)
       try command.run()
@@ -142,8 +155,8 @@ extension ParsableCommand {
   /// another built-in `ParsableCommand` type, from command-line arguments,
   /// and then calls its `run()` method, exiting with a relevant error message
   /// if necessary.
-  public static func main() {
-    self.main(nil)
+  static func main() {
+    main(nil)
   }
 }
 
@@ -152,16 +165,98 @@ extension ParsableCommand {
 extension ParsableCommand {
   /// `true` if this command contains any array arguments that are declared
   /// with `.unconditionalRemaining`.
-  internal static var includesUnconditionalArguments: Bool {
-    ArgumentSet(self, visibility: .private).contains(where: {
+  static var includesPassthroughArguments: Bool {
+    ArgumentSet(self, visibility: .private, parent: nil).contains(where: {
       $0.isRepeatingPositional && $0.parsingStrategy == .allRemainingInput
     })
   }
-  
+
+  static var includesAllUnrecognizedArgument: Bool {
+    ArgumentSet(self, visibility: .private, parent: nil).contains(where: {
+      $0.isRepeatingPositional && $0.parsingStrategy == .allUnrecognized
+    })
+  }
+
   /// `true` if this command's default subcommand contains any array arguments
   /// that are declared with `.unconditionalRemaining`. This is `false` if
   /// there's no default subcommand.
-  internal static var defaultIncludesUnconditionalArguments: Bool {
-    configuration.defaultSubcommand?.includesUnconditionalArguments == true
+  static var defaultIncludesPassthroughArguments: Bool {
+    configuration.defaultSubcommand?.includesPassthroughArguments == true
   }
+
+  #if DEBUG
+    @available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *)
+    static func checkAsyncHierarchy(_ command: ParsableCommand.Type, root: String) {
+      for sub in command.configuration.subcommands {
+        checkAsyncHierarchy(sub, root: root)
+
+        guard sub.configuration.subcommands.isEmpty else { continue }
+        guard sub is AsyncParsableCommand.Type else { continue }
+
+        fatalError("""
+
+        --------------------------------------------------------------------
+        Asynchronous subcommand of a synchronous root.
+
+        The asynchronous command `\(sub)` is declared as a subcommand of the synchronous root command `\(root)`.
+
+        With this configuration, your asynchronous `run()` method will not be called. To fix this issue, change `\(root)`'s `ParsableCommand` conformance to `AsyncParsableCommand`.
+        --------------------------------------------------------------------
+
+        """.wrapped(to: 70))
+      }
+    }
+
+    @available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *)
+    static func firstAsyncSubcommand(_ command: ParsableCommand.Type) -> AsyncParsableCommand.Type? {
+      for sub in command.configuration.subcommands {
+        if let asyncCommand = sub as? AsyncParsableCommand.Type,
+           sub.configuration.subcommands.isEmpty
+        {
+          return asyncCommand
+        }
+
+        if let asyncCommand = firstAsyncSubcommand(sub) {
+          return asyncCommand
+        }
+      }
+
+      return nil
+    }
+  #endif
+}
+
+// MARK: Async Configuration Errors
+
+func failAsyncHierarchy(
+  rootCommand: ParsableCommand.Type, subCommand: ParsableCommand.Type
+) -> Never {
+  fatalError("""
+
+  --------------------------------------------------------------------
+  Asynchronous subcommand of a synchronous root.
+
+  The asynchronous command `\(subCommand)` is declared as a subcommand of the synchronous root command `\(rootCommand)`.
+
+  With this configuration, your asynchronous `run()` method will not be called. To fix this issue, change `\(rootCommand)`'s `ParsableCommand` conformance to `AsyncParsableCommand`.
+  --------------------------------------------------------------------
+
+  """.wrapped(to: 70))
+}
+
+func failAsyncPlatform(rootCommand: ParsableCommand.Type) -> Never {
+  fatalError("""
+
+    --------------------------------------------------------------------
+    Asynchronous root command needs availability annotation.
+
+    The asynchronous root command `\(rootCommand)` needs an availability annotation in order to be executed asynchronously. To fix this issue, add the following availability attribute to your `\(rootCommand)` declaration or set the minimum platform in your "Package.swift" file.
+
+    """.wrapped(to: 70)
+      + """
+
+      @available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *)
+      --------------------------------------------------------------------
+
+      """)
 }

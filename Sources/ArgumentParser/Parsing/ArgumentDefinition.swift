@@ -15,42 +15,29 @@ struct ArgumentDefinition {
   enum Update {
     typealias Nullary = (InputOrigin, Name?, inout ParsedValues) throws -> Void
     typealias Unary = (InputOrigin, Name?, String, inout ParsedValues) throws -> Void
-    
+
     /// An argument that gets its value solely from its presence.
     case nullary(Nullary)
-    
+
     /// An argument that takes a string as its value.
     case unary(Unary)
   }
-  
+
   typealias Initial = (InputOrigin, inout ParsedValues) throws -> Void
-  
+
   enum Kind {
     /// An option or flag, with a name and an optional value.
     case named([Name])
-    
+
     /// A positional argument.
     case positional
-    
+
     /// A pseudo-argument that takes its value from a property's default value
     /// instead of from command-line arguments.
     case `default`
   }
-  
+
   struct Help {
-    var options: Options
-
-    // `ArgumentHelp` members
-    var abstract: String = ""
-    var discussion: String = ""
-    var valueName: String = ""
-    var visibility: ArgumentVisibility = .default
-
-    var defaultValue: String?
-    var keys: [InputKey]
-    var allValues: [String] = []
-    var isComposite: Bool = false
-    
     struct Options: OptionSet {
       var rawValue: UInt
 
@@ -58,36 +45,43 @@ struct ArgumentDefinition {
       static let isRepeating = Options(rawValue: 1 << 1)
     }
 
-    init(allValues: [String] = [], options: Options = [], help: ArgumentHelp? = nil, defaultValue: String? = nil, key: InputKey, isComposite: Bool = false) {
+    var options: Options
+    var defaultValue: String?
+    var keys: [InputKey]
+    var allValues: [String]
+    var isComposite: Bool
+    var abstract: String
+    var discussion: String
+    var valueName: String
+    var visibility: ArgumentVisibility
+    var parentTitle: String
+
+    init(
+      allValues: [String],
+      options: Options,
+      help: ArgumentHelp?,
+      defaultValue: String?,
+      key: InputKey,
+      isComposite: Bool
+    ) {
       self.options = options
       self.defaultValue = defaultValue
-      self.keys = [key]
+      keys = [key]
       self.allValues = allValues
       self.isComposite = isComposite
-      updateArgumentHelp(help: help)
-    }
-
-    init<T: ExpressibleByArgument>(type: T.Type, options: Options = [], help: ArgumentHelp? = nil, defaultValue: String? = nil, key: InputKey) {
-      self.options = options
-      self.defaultValue = defaultValue
-      self.keys = [key]
-      self.allValues = type.allValueStrings
-      updateArgumentHelp(help: help)
-    }
-
-    mutating func updateArgumentHelp(help: ArgumentHelp?) {
-      self.abstract = help?.abstract ?? ""
-      self.discussion = help?.discussion ?? ""
-      self.valueName = help?.valueName ?? ""
-      self.visibility = help?.visibility ?? .default
+      abstract = help?.abstract ?? ""
+      discussion = help?.discussion ?? ""
+      valueName = help?.valueName ?? ""
+      visibility = help?.visibility ?? .default
+      parentTitle = ""
     }
   }
-  
+
   /// This folds the public `ArrayParsingStrategy` and `SingleValueParsingStrategy`
   /// into a single enum.
   enum ParsingStrategy {
-    /// Expect the next `SplitArguments.Element` to be a value and parse it. Will fail if the next
-    /// input is an option.
+    /// Expect the next `SplitArguments.Element` to be a value and parse it.
+    /// Will fail if the next input is an option.
     case `default`
     /// Parse the next `SplitArguments.Element.value`
     case scanningForValue
@@ -97,26 +91,32 @@ struct ArgumentDefinition {
     case upToNextOption
     /// Parse all remaining `SplitArguments.Element` as values, regardless of its type.
     case allRemainingInput
+    /// Collect all the elements after the terminator, preventing them from
+    /// appearing in any other position.
+    case postTerminator
+    /// Collect all unused inputs once recognized arguments/options/flags have
+    /// been parsed.
+    case allUnrecognized
   }
-  
+
   var kind: Kind
   var help: Help
   var completion: CompletionKind
   var parsingStrategy: ParsingStrategy
   var update: Update
   var initial: Initial
-  
+
   var names: [Name] {
     switch kind {
-    case .named(let n): return n
+    case let .named(n): return n
     case .positional, .default: return []
     }
   }
-  
+
   var valueName: String {
     help.valueName.mapEmpty {
       names.preferredName?.valueString
-        ?? help.keys.first?.rawValue.convertedToSnakeCase(separator: "-")
+        ?? help.keys.first?.name.convertedToSnakeCase(separator: "-")
         ?? "value"
     }
   }
@@ -132,7 +132,7 @@ struct ArgumentDefinition {
     if case (.positional, .nullary) = (kind, update) {
       preconditionFailure("Can't create a nullary positional argument.")
     }
-    
+
     self.kind = kind
     self.help = help
     self.completion = completion
@@ -145,11 +145,11 @@ struct ArgumentDefinition {
 extension ArgumentDefinition: CustomDebugStringConvertible {
   var debugDescription: String {
     switch (kind, update) {
-    case (.named(let names), .nullary):
+    case let (.named(names), .nullary):
       return names
         .map { $0.synopsisString }
         .joined(separator: ",")
-    case (.named(let names), .unary):
+    case let (.named(names), .unary):
       return names
         .map { $0.synopsisString }
         .joined(separator: ",")
@@ -168,7 +168,7 @@ extension ArgumentDefinition {
     result.help.options.insert(.isOptional)
     return result
   }
-  
+
   var nonOptional: ArgumentDefinition {
     var result = self
     result.help.options.remove(.isOptional)
@@ -183,7 +183,7 @@ extension ArgumentDefinition {
     }
     return false
   }
-  
+
   var isRepeatingPositional: Bool {
     isPositional && help.options.contains(.isRepeating)
   }
@@ -195,7 +195,7 @@ extension ArgumentDefinition {
       return false
     }
   }
-  
+
   var allowsJoinedValue: Bool {
     names.contains(where: { $0.allowsJoined })
   }
@@ -208,38 +208,247 @@ extension ArgumentDefinition.Kind {
   }
 }
 
-extension ArgumentDefinition.Update {
-  static func appendToArray<A: ExpressibleByArgument>(forType type: A.Type, key: InputKey) -> ArgumentDefinition.Update {
-    return ArgumentDefinition.Update.unary {
-      (origin, name, value, values) in
-      guard let v = A(argument: value) else {
-        throw ParserError.unableToParseValue(origin, name, value, forKey: key)
+// MARK: - Common @Argument, @Option, Unparsed Initializer Path
+
+extension ArgumentDefinition {
+  // MARK: Unparsed Keys
+
+  /// Creates an argument definition for a property that isn't parsed from the
+  /// command line.
+  ///
+  /// This initializer is used for any property defined on a `ParsableArguments`
+  /// type that isn't decorated with one of StackOtterArgParser's property wrappers.
+  init(unparsedKey: String, default defaultValue: Any?, parent: InputKey?) {
+    self.init(
+      container: Bare<Any>.self,
+      key: InputKey(name: unparsedKey, parent: parent),
+      kind: .default,
+      allValues: [],
+      help: .private,
+      defaultValueDescription: nil,
+      parsingStrategy: .default,
+      parser: { key, origin, name, valueString in
+        throw ParserError.unableToParseValue(
+          origin, name, valueString, forKey: key, originalError: nil
+        )
+      },
+      initial: defaultValue,
+      completion: nil
+    )
+  }
+
+  init<Container>(
+    container _: Container.Type,
+    key: InputKey,
+    kind: ArgumentDefinition.Kind,
+    help: ArgumentHelp?,
+    parsingStrategy: ParsingStrategy,
+    initial: Container.Initial?,
+    completion: CompletionKind?
+  ) where Container: ArgumentDefinitionContainerExpressibleByArgument {
+    self.init(
+      container: Container.self,
+      key: key,
+      kind: kind,
+      allValues: Container.Contained.allValueStrings,
+      help: help,
+      defaultValueDescription: Container.defaultValueDescription(initial),
+      parsingStrategy: parsingStrategy,
+      parser: { key, origin, name, valueString -> Container.Contained in
+        guard let value = Container.Contained(argument: valueString) else {
+          throw ParserError.unableToParseValue(
+            origin, name, valueString, forKey: key, originalError: nil
+          )
+        }
+        return value
+      },
+      initial: initial,
+      completion: completion ?? Container.Contained.defaultCompletionKind
+    )
+  }
+
+  init<Container>(
+    container _: Container.Type,
+    key: InputKey,
+    kind: ArgumentDefinition.Kind,
+    help: ArgumentHelp?,
+    parsingStrategy: ParsingStrategy,
+    transform: @escaping (String) throws -> Container.Contained,
+    initial: Container.Initial?,
+    completion: CompletionKind?
+  ) where Container: ArgumentDefinitionContainer {
+    self.init(
+      container: Container.self,
+      key: key,
+      kind: kind,
+      allValues: [],
+      help: help,
+      defaultValueDescription: nil,
+      parsingStrategy: parsingStrategy,
+      parser: { key, origin, name, valueString -> Container.Contained in
+        do {
+          return try transform(valueString)
+        } catch {
+          throw ParserError.unableToParseValue(
+            origin, name, valueString, forKey: key, originalError: error
+          )
+        }
+      },
+      initial: initial,
+      completion: completion
+    )
+  }
+
+  private init<Container>(
+    container _: Container.Type,
+    key: InputKey,
+    kind: ArgumentDefinition.Kind,
+    allValues: [String],
+    help: ArgumentHelp?,
+    defaultValueDescription: String?,
+    parsingStrategy: ParsingStrategy,
+    parser: @escaping (InputKey, InputOrigin, Name?, String) throws -> Container.Contained,
+    initial: Container.Initial?,
+    completion: CompletionKind?
+  ) where Container: ArgumentDefinitionContainer {
+    self.init(
+      kind: kind,
+      help: .init(
+        allValues: allValues,
+        options: Container.helpOptions.union(initial != nil ? [.isOptional] : []),
+        help: help,
+        defaultValue: defaultValueDescription,
+        key: key,
+        isComposite: false
+      ),
+      completion: completion ?? .default,
+      parsingStrategy: parsingStrategy,
+      update: .unary { origin, name, valueString, parsedValues in
+        let value = try parser(key, origin, name, valueString)
+        Container.update(
+          parsedValues: &parsedValues,
+          value: value,
+          key: key,
+          origin: origin
+        )
+      },
+      initial: { origin, values in
+        let inputOrigin: InputOrigin
+        switch kind {
+        case .default:
+          inputOrigin = InputOrigin(element: .defaultValue)
+        case .named, .positional:
+          inputOrigin = origin
+        }
+        values.set(initial, forKey: key, inputOrigin: inputOrigin)
       }
-      values.update(forKey: key, inputOrigin: origin, initial: [A](), closure: {
-        $0.append(v)
-      })
-    }
+    )
   }
 }
 
-// MARK: - Help Options
+// MARK: - Abstraction over T, Option<T>, Array<T>
 
-protocol ArgumentHelpOptionProvider {
+protocol ArgumentDefinitionContainer {
+  associatedtype Contained
+  associatedtype Initial
+
   static var helpOptions: ArgumentDefinition.Help.Options { get }
+  static func update(
+    parsedValues: inout ParsedValues,
+    value: Contained,
+    key: InputKey,
+    origin: InputOrigin
+  )
 }
 
-extension Optional: ArgumentHelpOptionProvider {
-  static var helpOptions: ArgumentDefinition.Help.Options {
-    return [.isOptional]
+protocol ArgumentDefinitionContainerExpressibleByArgument:
+  ArgumentDefinitionContainer where Contained: ExpressibleByArgument
+{
+  static func defaultValueDescription(_ initial: Initial?) -> String?
+}
+
+enum Bare<T> {}
+
+extension Bare: ArgumentDefinitionContainer {
+  typealias Contained = T
+  typealias Initial = T
+
+  static var helpOptions: ArgumentDefinition.Help.Options { [] }
+
+  static func update(
+    parsedValues: inout ParsedValues,
+    value: Contained,
+    key: InputKey,
+    origin: InputOrigin
+  ) {
+    parsedValues.set(value, forKey: key, inputOrigin: origin)
   }
 }
 
-extension ArgumentDefinition.Help.Options {
-  init<A>(type: A.Type) {
-    if let t = type as? ArgumentHelpOptionProvider.Type {
-      self = t.helpOptions
-    } else {
-      self = []
-    }
+extension Bare: ArgumentDefinitionContainerExpressibleByArgument
+  where Contained: ExpressibleByArgument
+{
+  static func defaultValueDescription(_ initial: T?) -> String? {
+    guard let initial = initial else { return nil }
+    return initial.defaultValueDescription
+  }
+}
+
+extension Optional: ArgumentDefinitionContainer {
+  typealias Contained = Wrapped
+  typealias Initial = Wrapped
+
+  static var helpOptions: ArgumentDefinition.Help.Options { [.isOptional] }
+
+  static func update(
+    parsedValues: inout ParsedValues,
+    value: Contained,
+    key: InputKey,
+    origin: InputOrigin
+  ) {
+    parsedValues.set(value, forKey: key, inputOrigin: origin)
+  }
+}
+
+extension Optional: ArgumentDefinitionContainerExpressibleByArgument
+  where Contained: ExpressibleByArgument
+{
+  static func defaultValueDescription(_ initial: Initial?) -> String? {
+    guard let initial = initial else { return nil }
+    return initial.defaultValueDescription
+  }
+}
+
+extension Array: ArgumentDefinitionContainer {
+  typealias Contained = Element
+  typealias Initial = [Element]
+
+  static var helpOptions: ArgumentDefinition.Help.Options { [.isRepeating] }
+
+  static func update(
+    parsedValues: inout ParsedValues,
+    value: Element,
+    key: InputKey,
+    origin: InputOrigin
+  ) {
+    parsedValues.update(
+      forKey: key,
+      inputOrigin: origin,
+      initial: .init(),
+      closure: { $0.append(value) }
+    )
+  }
+}
+
+extension Array: ArgumentDefinitionContainerExpressibleByArgument
+  where Element: ExpressibleByArgument
+{
+  static func defaultValueDescription(_ initial: [Element]?) -> String? {
+    guard let initial = initial else { return nil }
+    guard !initial.isEmpty else { return nil }
+    return initial
+      .lazy
+      .map { $0.defaultValueDescription }
+      .joined(separator: ", ")
   }
 }

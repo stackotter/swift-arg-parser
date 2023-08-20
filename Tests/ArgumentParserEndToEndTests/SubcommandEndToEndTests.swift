@@ -69,7 +69,7 @@ extension SubcommandEndToEndTests {
     let helpA = Foo.message(for: CleanExit.helpRequest(CommandA.self))
     let helpB = Foo.message(for: CleanExit.helpRequest(CommandB.self))
 
-    AssertEqualStringsIgnoringTrailingWhitespace("""
+    AssertEqualStrings(actual: helpFoo, expected: """
     USAGE: foo --name <name> <subcommand>
 
     OPTIONS:
@@ -81,8 +81,8 @@ extension SubcommandEndToEndTests {
       b
 
       See 'foo help <subcommand>' for detailed help.
-    """, helpFoo)
-    AssertEqualStringsIgnoringTrailingWhitespace("""
+    """)
+    AssertEqualStrings(actual: helpA, expected: """
     USAGE: foo a --name <name> --bar <bar>
 
     OPTIONS:
@@ -90,8 +90,8 @@ extension SubcommandEndToEndTests {
       --bar <bar>
       -h, --help              Show help information.
 
-    """, helpA)
-    AssertEqualStringsIgnoringTrailingWhitespace("""
+    """)
+    AssertEqualStrings(actual: helpB, expected: """
     USAGE: foo b --name <name> --baz <baz>
 
     OPTIONS:
@@ -99,7 +99,7 @@ extension SubcommandEndToEndTests {
       --baz <baz>
       -h, --help              Show help information.
 
-    """, helpB)
+    """)
   }
 
   func testParsing_SubCommand_fails() throws {

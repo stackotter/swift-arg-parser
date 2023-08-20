@@ -9,19 +9,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if canImport(Glibc)
-import Glibc
-let _exit: (Int32) -> Never = Glibc.exit
-#elseif canImport(Darwin)
-import Darwin
-let _exit: (Int32) -> Never = Darwin.exit
-#elseif canImport(CRT)
-import CRT
-let _exit: (Int32) -> Never = ucrt._exit
-#elseif canImport(WASILibc)
-import WASILibc
-#endif
-
 /// A type that can be parsed from a program's command-line arguments.
 ///
 /// When you implement a `ParsableArguments` type, all properties must be declared with
@@ -30,13 +17,13 @@ public protocol ParsableArguments: Decodable {
   /// Creates an instance of this parsable type using the definitions
   /// given by each property's wrapper.
   init()
-  
+
   /// Validates the properties of the instance after parsing.
   ///
   /// Implement this method to perform validation or other processing after
   /// creating a new instance from command-line arguments.
   mutating func validate() throws
-  
+
   /// The label to use for "Error: ..." messages from this type. (experimental)
   static var _errorLabel: String { get }
 }
@@ -45,56 +32,48 @@ public protocol ParsableArguments: Decodable {
 struct _WrappedParsableCommand<P: ParsableArguments>: ParsableCommand {
   static var _commandName: String {
     let name = String(describing: P.self).convertedToSnakeCase()
-    
+
     // If the type is named something like "TransformOptions", we only want
     // to use "transform" as the command name.
     if let optionsRange = name.range(of: "_options"),
-      optionsRange.upperBound == name.endIndex
+       optionsRange.upperBound == name.endIndex
     {
       return String(name[..<optionsRange.lowerBound])
     } else {
       return name
     }
   }
-  
+
   @OptionGroup var options: P
 }
 
-struct StandardError: TextOutputStream {
-  mutating func write(_ string: String) {
-    for byte in string.utf8 { putc(numericCast(byte), stderr) }
-  }
-}
+public extension ParsableArguments {
+  mutating func validate() throws {}
 
-var standardError = StandardError()
-
-extension ParsableArguments {
-  public mutating func validate() throws {}
-  
   /// This type as-is if it conforms to `ParsableCommand`, or wrapped in the
   /// `ParsableCommand` wrapper if not.
   internal static var asCommand: ParsableCommand.Type {
     self as? ParsableCommand.Type ?? _WrappedParsableCommand<Self>.self
   }
-  
-  public static var _errorLabel: String {
+
+  static var _errorLabel: String {
     "Error"
   }
 }
 
 // MARK: - API
 
-extension ParsableArguments {
+public extension ParsableArguments {
   /// Parses a new instance of this type from command-line arguments.
   ///
   /// - Parameter arguments: An array of arguments to use for parsing. If
   ///   `arguments` is `nil`, this uses the program's command-line arguments.
   /// - Returns: A new instance of this type.
-  public static func parse(
+  static func parse(
     _ arguments: [String]? = nil
   ) throws -> Self {
     // Parse the command and unwrap the result if necessary.
-    switch try self.asCommand.parseAsRoot(arguments) {
+    switch try asCommand.parseAsRoot(arguments) {
     case let helpCommand as HelpCommand:
       throw ParserError.helpRequested(visibility: helpCommand.visibility)
     case let result as _WrappedParsableCommand<Self>:
@@ -111,23 +90,23 @@ extension ParsableArguments {
       throw ParserError.invalidState
     }
   }
-  
+
   /// Returns a brief message for the given error.
   ///
   /// - Parameter error: An error to generate a message for.
   /// - Returns: A message that can be displayed to the user.
-  public static func message(
+  static func message(
     for error: Error
   ) -> String {
     MessageInfo(error: error, type: self).message
   }
-  
+
   /// Returns a full message for the given error, including usage information,
   /// if appropriate.
   ///
   /// - Parameter error: An error to generate a message for.
   /// - Returns: A message that can be displayed to the user.
-  public static func fullMessage(
+  static func fullMessage(
     for error: Error
   ) -> String {
     MessageInfo(error: error, type: self).fullText(for: self)
@@ -143,7 +122,7 @@ extension ParsableArguments {
   /// - Returns: The full help screen for this type.
   @_disfavoredOverload
   @available(*, deprecated, message: "Use helpMessage(includeHidden:columns:) instead.")
-  public static func helpMessage(
+  static func helpMessage(
     columns: Int?
   ) -> String {
     helpMessage(includeHidden: false, columns: columns)
@@ -159,7 +138,7 @@ extension ParsableArguments {
   ///     width, or a default value of `80` if the terminal width is not
   ///     available.
   /// - Returns: The full help screen for this type.
-  public static func helpMessage(
+  static func helpMessage(
     includeHidden: Bool = false,
     columns: Int? = nil
   ) -> String {
@@ -168,7 +147,7 @@ extension ParsableArguments {
   }
 
   /// Returns the JSON representation of this type.
-  public static func _dumpHelp() -> String {
+  static func _dumpHelp() -> String {
     DumpHelpGenerator(self).rendered()
   }
 
@@ -179,18 +158,18 @@ extension ParsableArguments {
   ///
   /// - Parameter error: An error to generate an exit code for.
   /// - Returns: The exit code for `error`.
-  public static func exitCode(
+  static func exitCode(
     for error: Error
   ) -> ExitCode {
     MessageInfo(error: error, type: self).exitCode
   }
-    
+
   /// Returns a shell completion script for the specified shell.
   ///
   /// - Parameter shell: The shell to generate a completion script for.
   /// - Returns: The completion script for `shell`.
-  public static func completionScript(for shell: CompletionShell) -> String {
-    let completionsGenerator = try! CompletionsGenerator(command: self.asCommand, shell: shell)
+  static func completionScript(for shell: CompletionShell) -> String {
+    let completionsGenerator = try! CompletionsGenerator(command: asCommand, shell: shell)
     return completionsGenerator.generateCompletionScript()
   }
 
@@ -204,31 +183,31 @@ extension ParsableArguments {
   /// error message and exits with code `EX_USAGE` or `EXIT_FAILURE`.
   ///
   /// - Parameter error: The error to use when exiting, if any.
-  public static func exit(
+  static func exit(
     withError error: Error? = nil
   ) -> Never {
     guard let error = error else {
-      _exit(ExitCode.success.rawValue)
+      Platform.exit(ExitCode.success.rawValue)
     }
-    
+
     let messageInfo = MessageInfo(error: error, type: self)
     let fullText = messageInfo.fullText(for: self)
     if !fullText.isEmpty {
       if messageInfo.shouldExitCleanly {
         print(fullText)
       } else {
-        print(fullText, to: &standardError)
+        print(fullText, to: &Platform.standardError)
       }
     }
-    _exit(messageInfo.exitCode.rawValue)
+    Platform.exit(messageInfo.exitCode.rawValue)
   }
-  
+
   /// Parses a new instance of this type from command-line arguments or exits
   /// with a relevant message.
   ///
   /// - Parameter arguments: An array of arguments to use for parsing. If
   ///   `arguments` is `nil`, this uses the program's command-line arguments.
-  public static func parseOrExit(
+  static func parseOrExit(
     _ arguments: [String]? = nil
   ) -> Self {
     do {
@@ -260,7 +239,7 @@ func nilOrValue(_ value: Any) -> Any? {
 /// the argument set that they define.
 protocol ArgumentSetProvider {
   func argumentSet(for key: InputKey) -> ArgumentSet
-    
+
   var _visibility: ArgumentVisibility { get }
 }
 
@@ -269,34 +248,34 @@ extension ArgumentSetProvider {
 }
 
 extension ArgumentSet {
-  init(_ type: ParsableArguments.Type, visibility: ArgumentVisibility) {
+  init(_ type: ParsableArguments.Type, visibility: ArgumentVisibility, parent: InputKey?) {
     #if DEBUG
-    do {
-      try type._validate()
-    } catch {
-      assertionFailure("\(error)")
-    }
+      do {
+        try type._validate(parent: parent)
+      } catch {
+        assertionFailure("\(error)")
+      }
     #endif
-    
+
     let a: [ArgumentSet] = Mirror(reflecting: type.init())
       .children
-      .compactMap { child in
-        guard var codingKey = child.label else { return nil }
-        
+      .compactMap { child -> ArgumentSet? in
+        guard let codingKey = child.label else { return nil }
+
         if let parsed = child.value as? ArgumentSetProvider {
           guard parsed._visibility.isAtLeastAsVisible(as: visibility)
-            else { return nil }
+          else { return nil }
 
-          // Property wrappers have underscore-prefixed names
-          codingKey = String(codingKey.first == "_"
-                              ? codingKey.dropFirst(1)
-                              : codingKey.dropFirst(0))
-          let key = InputKey(rawValue: codingKey)
+          let key = InputKey(name: codingKey, parent: parent)
           return parsed.argumentSet(for: key)
         } else {
+          let arg = ArgumentDefinition(
+            unparsedKey: codingKey,
+            default: nilOrValue(child.value), parent: parent
+          )
+
           // Save a non-wrapped property as is
-          return ArgumentSet(
-            ArgumentDefinition(unparsedKey: codingKey, default: nilOrValue(child.value)))
+          return ArgumentSet(arg)
         }
       }
     self.init(
@@ -306,18 +285,18 @@ extension ArgumentSet {
 
 /// The fatal error message to display when someone accesses a
 /// `ParsableArguments` type after initializing it directly.
-internal let directlyInitializedError = """
+let directlyInitializedError = """
 
-  --------------------------------------------------------------------
-  Can't read a value from a parsable argument definition.
+--------------------------------------------------------------------
+Can't read a value from a parsable argument definition.
 
-  This error indicates that a property declared with an `@Argument`,
-  `@Option`, `@Flag`, or `@OptionGroup` property wrapper was neither
-  initialized to a value nor decoded from command-line arguments.
+This error indicates that a property declared with an `@Argument`,
+`@Option`, `@Flag`, or `@OptionGroup` property wrapper was neither
+initialized to a value nor decoded from command-line arguments.
 
-  To get a valid value, either call one of the static parsing methods
-  (`parse`, `parseAsRoot`, or `main`) or define an initializer that
-  initializes _every_ property of your parsable type.
-  --------------------------------------------------------------------
+To get a valid value, either call one of the static parsing methods
+(`parse`, `parseAsRoot`, or `main`) or define an initializer that
+initializes _every_ property of your parsable type.
+--------------------------------------------------------------------
 
-  """
+"""

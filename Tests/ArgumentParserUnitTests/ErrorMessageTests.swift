@@ -64,27 +64,46 @@ extension ErrorMessageTests {
   }
 }
 
+private enum Format: String, Equatable, Decodable, ExpressibleByArgument, CaseIterable {
+  case text
+  case json
+  case csv
+}
+
+private enum Name: String, Equatable, Decodable, ExpressibleByArgument, CaseIterable {
+  case bruce
+  case clint
+  case hulk
+  case natasha
+  case steve
+  case thor
+  case tony
+}
+
+private enum Counter: Int, ExpressibleByArgument, CaseIterable {
+  case one = 1
+  case two, three, four
+}
+
 private struct Foo: ParsableArguments {
-  enum Format: String, Equatable, Decodable, ExpressibleByArgument, CaseIterable {
-    case text
-    case json
-    case csv
-  }
-
-  enum Name: String, Equatable, Decodable, ExpressibleByArgument, CaseIterable {
-    case bruce
-    case clint
-    case hulk
-    case natasha
-    case steve
-    case thor
-    case tony
-  }
-
   @Option(name: [.short, .long])
   var format: Format
   @Option(name: [.short, .long])
   var name: Name?
+}
+
+private struct EnumWithFewCasesArrayArgument: ParsableArguments {
+  @Argument
+  var formats: [Format]
+}
+
+private struct EnumWithManyCasesArrayArgument: ParsableArguments {
+  @Argument
+  var names: [Name]
+}
+
+private struct EnumWithIntRawValue: ParsableArguments {
+  @Option var counter: Counter
 }
 
 extension ErrorMessageTests {
@@ -113,6 +132,23 @@ extension ErrorMessageTests {
                          - thor
                          - tony
                        """)
+    AssertErrorMessage(EnumWithFewCasesArrayArgument.self, ["png"], "The value 'png' is invalid for '<formats>'. Please provide one of 'text', 'json' or 'csv'.")
+    AssertErrorMessage(EnumWithManyCasesArrayArgument.self, ["loki"],
+                       """
+                       The value 'loki' is invalid for '<names>'. Please provide one of the following:
+                         - bruce
+                         - clint
+                         - hulk
+                         - natasha
+                         - steve
+                         - thor
+                         - tony
+                       """)
+
+    AssertErrorMessage(EnumWithIntRawValue.self, ["--counter", "one"], """
+    The value 'one' is invalid for '--counter <counter>'. \
+    Please provide one of '1', '2', '3' or '4'.
+    """)
   }
 }
 
@@ -208,6 +244,27 @@ extension ErrorMessageTests {
     AssertErrorMessage(Options.self, ["--no-bool", "--bool"], "Value to be set with flag \'--bool\' had already been set with flag \'--no-bool\'")
 
     AssertErrorMessage(OptOptions.self, ["-cbl"], "Value to be set with flag \'l\' in \'-cbl\' had already been set with flag \'c\' in \'-cbl\'")
+  }
+}
+
+// (see issue #434).
+private struct EmptyArray: ParsableArguments {
+  @Option(parsing: .upToNextOption)
+  var array: [String] = []
+
+  @Flag(name: [.short, .long])
+  var verbose = false
+}
+
+extension ErrorMessageTests {
+  func testEmptyArrayOption() {
+    AssertErrorMessage(EmptyArray.self, ["--array"], "Missing value for '--array <array>'")
+
+    AssertErrorMessage(EmptyArray.self, ["--array", "--verbose"], "Missing value for '--array <array>'")
+    AssertErrorMessage(EmptyArray.self, ["-verbose", "--array"], "Missing value for '--array <array>'")
+
+    AssertErrorMessage(EmptyArray.self, ["--array", "-v"], "Missing value for '--array <array>'")
+    AssertErrorMessage(EmptyArray.self, ["-v", "--array"], "Missing value for '--array <array>'")
   }
 }
 

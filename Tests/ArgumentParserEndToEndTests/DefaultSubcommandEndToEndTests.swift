@@ -90,7 +90,7 @@ extension DefaultSubcommandEndToEndTests {
     @OptionGroup var options: CommonOptions
     @Argument var pluginName: String
 
-    @Argument(parsing: .unconditionalRemaining)
+    @Argument(parsing: .captureForPassthrough)
     var pluginArguments: [String] = []
   }
 
@@ -98,7 +98,7 @@ extension DefaultSubcommandEndToEndTests {
     @OptionGroup var options: CommonOptions
     @Argument var pluginName: String
 
-    @Argument(parsing: .unconditionalRemaining)
+    @Argument(parsing: .captureForPassthrough)
     var pluginArguments: [String] = []
   }
 

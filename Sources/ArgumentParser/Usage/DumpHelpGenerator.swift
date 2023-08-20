@@ -9,10 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-@_implementationOnly import Foundation
+@_implementationOnly import class Foundation.JSONEncoder
 @_implementationOnly import StackOtterArgParserToolInfo
 
-internal struct DumpHelpGenerator {
+struct DumpHelpGenerator {
   var toolInfo: ToolInfoV0
 
   init(_ type: ParsableArguments.Type) {
@@ -20,7 +20,7 @@ internal struct DumpHelpGenerator {
   }
 
   init(commandStack: [ParsableCommand.Type]) {
-    self.toolInfo = ToolInfoV0(commandStack: commandStack)
+    toolInfo = ToolInfoV0(commandStack: commandStack)
   }
 
   func rendered() -> String {
@@ -29,24 +29,24 @@ internal struct DumpHelpGenerator {
     if #available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *) {
       encoder.outputFormatting.insert(.sortedKeys)
     }
-    guard let encoded = try? encoder.encode(self.toolInfo) else { return "" }
+    guard let encoded = try? encoder.encode(toolInfo) else { return "" }
     return String(data: encoded, encoding: .utf8) ?? ""
   }
 }
 
-fileprivate extension BidirectionalCollection where Element == ParsableCommand.Type {
+private extension BidirectionalCollection where Element == ParsableCommand.Type {
   /// Returns the ArgumentSet for the last command in this stack, including
   /// help and version flags, when appropriate.
   func allArguments() -> ArgumentSet {
-    guard var arguments = self.last.map({ ArgumentSet($0, visibility: .private) })
+    guard var arguments = last.map({ ArgumentSet($0, visibility: .private, parent: nil) })
     else { return ArgumentSet() }
-    self.versionArgumentDefinition().map { arguments.append($0) }
-    self.helpArgumentDefinition().map { arguments.append($0) }
+    versionArgumentDefinition().map { arguments.append($0) }
+    helpArgumentDefinition().map { arguments.append($0) }
     return arguments
   }
 }
 
-fileprivate extension ArgumentSet {
+private extension ArgumentSet {
   func mergingCompositeArguments() -> ArgumentSet {
     var arguments = ArgumentSet()
     var slice = self[...]
@@ -78,13 +78,13 @@ fileprivate extension ArgumentSet {
   }
 }
 
-fileprivate extension ToolInfoV0 {
+private extension ToolInfoV0 {
   init(commandStack: [ParsableCommand.Type]) {
     self.init(command: CommandInfoV0(commandStack: commandStack))
   }
 }
 
-fileprivate extension CommandInfoV0 {
+private extension CommandInfoV0 {
   init(commandStack: [ParsableCommand.Type]) {
     guard let command = commandStack.last else {
       preconditionFailure("commandStack must not be empty")
@@ -116,16 +116,18 @@ fileprivate extension CommandInfoV0 {
       discussion: command.configuration.discussion,
       defaultSubcommand: defaultSubcommand,
       subcommands: subcommands,
-      arguments: arguments)
+      arguments: arguments
+    )
   }
 }
 
-fileprivate extension ArgumentInfoV0 {
+private extension ArgumentInfoV0 {
   init?(argument: ArgumentDefinition) {
     guard let kind = ArgumentInfoV0.KindV0(argument: argument) else { return nil }
     self.init(
       kind: kind,
       shouldDisplay: argument.help.visibility.base == .default,
+      sectionTitle: argument.help.parentTitle.nonEmpty,
       isOptional: argument.help.options.contains(.isOptional),
       isRepeating: argument.help.options.contains(.isRepeating),
       names: argument.names.map(ArgumentInfoV0.NameInfoV0.init),
@@ -134,11 +136,12 @@ fileprivate extension ArgumentInfoV0 {
       defaultValue: argument.help.defaultValue,
       allValues: argument.help.allValues,
       abstract: argument.help.abstract,
-      discussion: argument.help.discussion)
+      discussion: argument.help.discussion
+    )
   }
 }
 
-fileprivate extension ArgumentInfoV0.KindV0 {
+private extension ArgumentInfoV0.KindV0 {
   init?(argument: ArgumentDefinition) {
     switch argument.kind {
     case .named:
@@ -156,7 +159,7 @@ fileprivate extension ArgumentInfoV0.KindV0 {
   }
 }
 
-fileprivate extension ArgumentInfoV0.NameInfoV0 {
+private extension ArgumentInfoV0.NameInfoV0 {
   init(name: Name) {
     switch name {
     case let .long(n):

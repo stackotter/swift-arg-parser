@@ -9,20 +9,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-struct InputKey: RawRepresentable, Hashable {
-  var rawValue: String
-
-  init(rawValue: String) {
-    self.rawValue = rawValue
-  }
-  
-  init<C: CodingKey>(_ codingKey: C) {
-    self.rawValue = codingKey.stringValue
-  }
-  
-  static let terminator = InputKey(rawValue: "__terminator")
-}
-
 /// The resulting values after parsing the command-line arguments.
 ///
 /// This is a flat key-value list of values.
@@ -42,6 +28,9 @@ struct ParsedValues {
   ///
   /// This is used for error output generation.
   var originalInput: [String]
+  
+  /// Any arguments that are captured into an `.allUnrecognized` argument.
+  var capturedUnrecognizedArguments = SplitArguments(originalInput: [])
 }
 
 extension ParsedValues {

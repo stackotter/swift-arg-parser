@@ -59,10 +59,10 @@ private struct Bar: ParsableArguments {
     case C
   }
 
-  @Option() var name: String?
-  @Option() var format: Format?
+  @Option() var name: String? = nil
+  @Option() var format: Format? = nil
   @Option() var foo: String
-  @Argument() var bar: String?
+  @Argument() var bar: String? = nil
 }
 
 extension OptionalEndToEndTests {

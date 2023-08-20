@@ -7,4 +7,5 @@ set_target_properties(StackOtterArgParserToolInfo PROPERTIES
 target_compile_options(StackOtterArgParserToolInfo PRIVATE
   $<$<BOOL:${BUILD_TESTING}>:-enable-testing>)
 
+
 set_property(GLOBAL APPEND PROPERTY StackOtterArgParser_EXPORTS StackOtterArgParserToolInfo)

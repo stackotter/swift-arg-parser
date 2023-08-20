@@ -101,8 +101,8 @@ extension CommandParser {
       throw CommandError(commandStack: commandStack, parserError: .dumpHelpRequested)
     }
 
-    // Look for a version flag if any commands in the stack define a version
-    if commandStack.contains(where: { !$0.configuration.version.isEmpty }) {
+    // Look for a version flag if the last command in the stack defines a version
+    if !(commandStack.last?.configuration.version.isEmpty ?? true) {
       guard !split.contains(Name.long("version")) else {
         throw CommandError(commandStack: commandStack, parserError: .versionRequested)
       }

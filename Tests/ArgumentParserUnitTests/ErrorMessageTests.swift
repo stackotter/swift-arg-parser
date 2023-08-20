@@ -9,15 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-@testable import ArgumentParser
 
 final class ErrorMessageTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   @Option() var name: String
   @Option(name: [.short, .long]) var format: String
 }
@@ -64,7 +64,7 @@ extension ErrorMessageTests {
   }
 }
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   enum Format: String, Equatable, Decodable, ExpressibleByArgument, CaseIterable {
     case text
     case json
@@ -80,6 +80,7 @@ fileprivate struct Foo: ParsableArguments {
     case thor
     case tony
   }
+
   @Option(name: [.short, .long])
   var format: Format
   @Option(name: [.short, .long])
@@ -91,31 +92,31 @@ extension ErrorMessageTests {
     AssertErrorMessage(Foo.self, ["--format", "png"], "The value 'png' is invalid for '--format <format>'. Please provide one of 'text', 'json' or 'csv'.")
     AssertErrorMessage(Foo.self, ["-f", "png"], "The value 'png' is invalid for '-f <format>'. Please provide one of 'text', 'json' or 'csv'.")
     AssertErrorMessage(Foo.self, ["-f", "text", "--name", "loki"],
-      """
-      The value 'loki' is invalid for '--name <name>'. Please provide one of the following:
-        - bruce
-        - clint
-        - hulk
-        - natasha
-        - steve
-        - thor
-        - tony
-      """)
+                       """
+                       The value 'loki' is invalid for '--name <name>'. Please provide one of the following:
+                         - bruce
+                         - clint
+                         - hulk
+                         - natasha
+                         - steve
+                         - thor
+                         - tony
+                       """)
     AssertErrorMessage(Foo.self, ["-f", "text", "-n", "loki"],
-      """
-      The value 'loki' is invalid for '-n <name>'. Please provide one of the following:
-        - bruce
-        - clint
-        - hulk
-        - natasha
-        - steve
-        - thor
-        - tony
-      """)
+                       """
+                       The value 'loki' is invalid for '-n <name>'. Please provide one of the following:
+                         - bruce
+                         - clint
+                         - hulk
+                         - natasha
+                         - steve
+                         - thor
+                         - tony
+                       """)
   }
 }
 
-fileprivate struct Baz: ParsableArguments {
+private struct Baz: ParsableArguments {
   @Flag
   var verbose: Bool = false
 }
@@ -126,7 +127,7 @@ extension ErrorMessageTests {
   }
 }
 
-fileprivate struct Qux: ParsableArguments {
+private struct Qux: ParsableArguments {
   @Argument()
   var firstNumber: Int
 
@@ -145,7 +146,7 @@ extension ErrorMessageTests {
   }
 }
 
-fileprivate struct Qwz: ParsableArguments {
+private struct Qwz: ParsableArguments {
   @Option() var name: String?
   @Option(name: [.customLong("title", withSingleDash: true)]) var title: String?
 }
@@ -174,7 +175,7 @@ private struct Options: ParsableArguments {
   enum OutputBehaviour: String, EnumerableFlag {
     case stats, count, list
 
-    static func name(for value: OutputBehaviour) -> NameSpecification {
+    static func name(for _: OutputBehaviour) -> NameSpecification {
       .shortAndLong
     }
   }
@@ -189,7 +190,7 @@ private struct OptOptions: ParsableArguments {
   enum OutputBehaviour: String, EnumerableFlag {
     case stats, count, list
 
-    static func name(for value: OutputBehaviour) -> NameSpecification {
+    static func name(for _: OutputBehaviour) -> NameSpecification {
       .short
     }
   }
@@ -212,7 +213,7 @@ extension ErrorMessageTests {
 
 // MARK: -
 
-fileprivate struct Repeat: ParsableArguments {
+private struct Repeat: ParsableArguments {
   @Option() var count: Int?
   @Argument() var phrase: String
 }
@@ -222,6 +223,7 @@ extension ErrorMessageTests {
     AssertErrorMessage(
       Repeat.self,
       ["--cont", "5", "Hello"],
-      "Unknown option '--cont'. Did you mean '--count'?")
+      "Unknown option '--cont'. Did you mean '--count'?"
+    )
   }
 }

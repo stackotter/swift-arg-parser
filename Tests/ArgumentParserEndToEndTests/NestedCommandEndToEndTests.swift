@@ -9,16 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class NestedCommandEndToEndTests: XCTestCase {
-}
+final class NestedCommandEndToEndTests: XCTestCase {}
 
 // MARK: Single value String
 
-fileprivate struct Foo: ParsableCommand {
+private struct Foo: ParsableCommand {
   static var configuration =
     CommandConfiguration(subcommands: [Build.self, Package.self])
 
@@ -51,10 +50,9 @@ fileprivate struct Foo: ParsableCommand {
   }
 }
 
-fileprivate func AssertParseFooCommand<A>(_ type: A.Type, _ arguments: [String], file: StaticString = #file, line: UInt = #line, closure: (A) throws -> Void) where A: ParsableCommand {
+private func AssertParseFooCommand<A>(_ type: A.Type, _ arguments: [String], file: StaticString = #file, line: UInt = #line, closure: (A) throws -> Void) where A: ParsableCommand {
   AssertParseCommand(Foo.self, type, arguments, file: file, line: line, closure: closure)
 }
-
 
 extension NestedCommandEndToEndTests {
   func testParsing_package() throws {

@@ -9,17 +9,17 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ArgumentParser
+import StackOtterArgParser
 
 extension Package {
   /// Describe the current package
   struct Describe: ParsableCommand {
     @OptionGroup()
     var options: Options
-    
+
     @Option(help: "Output format")
     var type: OutputType
-    
+
     enum OutputType: String, ExpressibleByArgument, Decodable {
       case json
       case text

@@ -36,7 +36,7 @@ struct Example: ParsableCommand {
 }
 ```
 
-This example shows how `ArgumentParser` provides defaults that speed up your initial development process:
+This example shows how `StackOtterArgParser` provides defaults that speed up your initial development process:
 
 - Option and flag names are derived from the names of your command's properties.
 - What kinds of inputs are valid, and whether arguments are required, is based on your properties' types and default values.
@@ -329,7 +329,7 @@ You must also always specify a default of `false` for a non-optional `Bool` flag
 
 ## Specifying a parsing strategy
 
-When parsing a list of command-line inputs, `ArgumentParser` distinguishes between dash-prefixed keys and un-prefixed values. When looking for the value for a key, only an un-prefixed value will be selected by default.
+When parsing a list of command-line inputs, `StackOtterArgParser` distinguishes between dash-prefixed keys and un-prefixed values. When looking for the value for a key, only an un-prefixed value will be selected by default.
 
 For example, this command defines a `--verbose` flag, a `--name` option, and an optional `file` argument:
 

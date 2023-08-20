@@ -4,7 +4,7 @@ Provide helpful feedback to users when things go wrong.
 
 ## Overview
 
-While `ArgumentParser` validates that the inputs given by your user match the requirements and types that you define in each command, there are some requirements that can't easily be described in Swift's type system, such as the number of elements in an array, or an expected integer value.
+While `StackOtterArgParser` validates that the inputs given by your user match the requirements and types that you define in each command, there are some requirements that can't easily be described in Swift's type system, such as the number of elements in an array, or an expected integer value.
 
 ### Validating Command-Line Input
 
@@ -59,7 +59,7 @@ hey
 
 ## Handling Post-Validation Errors
 
-The ``ValidationError`` type is a special `ArgumentParser` error — a validation error's message is always accompanied by an appropriate usage string. You can throw other errors, from either the `validate()` or `run()` method to indicate that something has gone wrong that isn't validation-specific. Errors that conform to `CustomStringConvertible` or `LocalizedError` provide the best experience for users.
+The ``ValidationError`` type is a special `StackOtterArgParser` error — a validation error's message is always accompanied by an appropriate usage string. You can throw other errors, from either the `validate()` or `run()` method to indicate that something has gone wrong that isn't validation-specific. Errors that conform to `CustomStringConvertible` or `LocalizedError` provide the best experience for users.
 
 ```swift
 struct LineCount: ParsableCommand {
@@ -73,7 +73,7 @@ struct LineCount: ParsableCommand {
 }
 ```
 
-The throwing `String(contentsOfFile:encoding:)` initializer fails when the user specifies an invalid file. `ArgumentParser` prints its error message to standard error and exits with an error code.
+The throwing `String(contentsOfFile:encoding:)` initializer fails when the user specifies an invalid file. `StackOtterArgParser` prints its error message to standard error and exits with an error code.
 
 ```
 % line-count file1.swift

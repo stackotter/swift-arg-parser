@@ -9,174 +9,184 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParser
-import ArgumentParserTestHelpers
 
 final class MathExampleTests: XCTestCase {
   func testMath_Simple() throws {
     try AssertExecuteCommand(command: "math 1 2 3 4 5", expected: "15")
     try AssertExecuteCommand(command: "math multiply 1 2 3 4 5", expected: "120")
   }
-  
+
   func testMath_Help() throws {
     let helpText = """
-        OVERVIEW: A utility for performing maths.
+    OVERVIEW: A utility for performing maths.
 
-        USAGE: math <subcommand>
+    USAGE: math <subcommand>
 
-        OPTIONS:
-          --version               Show the version.
-          -h, --help              Show help information.
+    OPTIONS:
+      --version               Show the version.
+      -h, --help              Show help information.
 
-        SUBCOMMANDS:
-          add (default)           Print the sum of the values.
-          multiply                Print the product of the values.
-          stats                   Calculate descriptive statistics.
+    SUBCOMMANDS:
+      add (default)           Print the sum of the values.
+      multiply                Print the product of the values.
+      stats                   Calculate descriptive statistics.
 
-          See 'math help <subcommand>' for detailed help.
-        """
-    
+      See 'math help <subcommand>' for detailed help.
+    """
+
     try AssertExecuteCommand(command: "math -h", expected: helpText)
     try AssertExecuteCommand(command: "math --help", expected: helpText)
     try AssertExecuteCommand(command: "math help", expected: helpText)
   }
-  
+
   func testMath_AddHelp() throws {
     let helpText = """
-        OVERVIEW: Print the sum of the values.
+    OVERVIEW: Print the sum of the values.
 
-        USAGE: math add [--hex-output] [<values> ...]
+    USAGE: math add [--hex-output] [<values> ...]
 
-        ARGUMENTS:
-          <values>                A group of integers to operate on.
+    ARGUMENTS:
+      <values>                A group of integers to operate on.
 
-        OPTIONS:
-          -x, --hex-output        Use hexadecimal notation for the result.
-          --version               Show the version.
-          -h, --help              Show help information.
-        """
-    
+    OPTIONS:
+      -x, --hex-output        Use hexadecimal notation for the result.
+      --version               Show the version.
+      -h, --help              Show help information.
+    """
+
     try AssertExecuteCommand(command: "math add -h", expected: helpText)
     try AssertExecuteCommand(command: "math add --help", expected: helpText)
     try AssertExecuteCommand(command: "math help add", expected: helpText)
-    
+
     // Verify that extra help flags are ignored.
     try AssertExecuteCommand(command: "math help add -h", expected: helpText)
     try AssertExecuteCommand(command: "math help add -help", expected: helpText)
     try AssertExecuteCommand(command: "math help add --help", expected: helpText)
   }
-  
+
   func testMath_StatsMeanHelp() throws {
     let helpText = """
-        OVERVIEW: Print the average of the values.
+    OVERVIEW: Print the average of the values.
 
-        USAGE: math stats average [--kind <kind>] [<values> ...]
+    USAGE: math stats average [--kind <kind>] [<values> ...]
 
-        ARGUMENTS:
-          <values>                A group of floating-point values to operate on.
+    ARGUMENTS:
+      <values>                A group of floating-point values to operate on.
 
-        OPTIONS:
-          --kind <kind>           The kind of average to provide. (default: mean)
-          --version               Show the version.
-          -h, --help              Show help information.
-        """
-    
+    OPTIONS:
+      --kind <kind>           The kind of average to provide. (default: mean)
+      --version               Show the version.
+      -h, --help              Show help information.
+    """
+
     try AssertExecuteCommand(command: "math stats average -h", expected: helpText)
     try AssertExecuteCommand(command: "math stats average --help", expected: helpText)
     try AssertExecuteCommand(command: "math help stats average", expected: helpText)
   }
-  
+
   func testMath_StatsQuantilesHelp() throws {
     let helpText = """
-        OVERVIEW: Print the quantiles of the values (TBD).
+    OVERVIEW: Print the quantiles of the values (TBD).
 
-        USAGE: math stats quantiles [<one-of-four>] [<custom-arg>] [<values> ...] [--file <file>] [--directory <directory>] [--shell <shell>] [--custom <custom>]
+    USAGE: math stats quantiles [<one-of-four>] [<custom-arg>] [<values> ...] [--file <file>] [--directory <directory>] [--shell <shell>] [--custom <custom>]
 
-        ARGUMENTS:
-          <one-of-four>
-          <custom-arg>
-          <values>                A group of floating-point values to operate on.
+    ARGUMENTS:
+      <one-of-four>
+      <custom-arg>
+      <values>                A group of floating-point values to operate on.
 
-        OPTIONS:
-          --file <file>
-          --directory <directory>
-          --shell <shell>
-          --custom <custom>
-          --version               Show the version.
-          -h, --help              Show help information.
-        """
-    
+    OPTIONS:
+      --file <file>
+      --directory <directory>
+      --shell <shell>
+      --custom <custom>
+      --version               Show the version.
+      -h, --help              Show help information.
+    """
+
     // The "quantiles" subcommand's run() method is unimplemented, so it
     // just generates the help text.
     try AssertExecuteCommand(command: "math stats quantiles", expected: helpText)
-    
+
     try AssertExecuteCommand(command: "math stats quantiles -h", expected: helpText)
     try AssertExecuteCommand(command: "math stats quantiles --help", expected: helpText)
     try AssertExecuteCommand(command: "math help stats quantiles", expected: helpText)
   }
-  
+
   func testMath_CustomValidation() throws {
     try AssertExecuteCommand(
       command: "math stats average --kind mode",
       expected: """
-            Error: Please provide at least one value to calculate the mode.
-            Usage: math stats average [--kind <kind>] [<values> ...]
-              See 'math stats average --help' for more information.
-            """,
-      exitCode: .validationFailure)
+      Error: Please provide at least one value to calculate the mode.
+      Usage: math stats average [--kind <kind>] [<values> ...]
+        See 'math stats average --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
   }
-  
+
   func testMath_Versions() throws {
     try AssertExecuteCommand(
       command: "math --version",
-      expected: "1.0.0")
+      expected: "1.0.0"
+    )
     try AssertExecuteCommand(
       command: "math stats --version",
-      expected: "1.0.0")
+      expected: "1.0.0"
+    )
     try AssertExecuteCommand(
       command: "math stats average --version",
-      expected: "1.5.0-alpha")
+      expected: "1.5.0-alpha"
+    )
   }
 
   func testMath_ExitCodes() throws {
     try AssertExecuteCommand(
       command: "math stats quantiles --test-success-exit-code",
       expected: "",
-      exitCode: .success)
+      exitCode: .success
+    )
     try AssertExecuteCommand(
       command: "math stats quantiles --test-failure-exit-code",
       expected: "",
-      exitCode: .failure)
+      exitCode: .failure
+    )
     try AssertExecuteCommand(
       command: "math stats quantiles --test-validation-exit-code",
       expected: "",
-      exitCode: .validationFailure)
+      exitCode: .validationFailure
+    )
     try AssertExecuteCommand(
       command: "math stats quantiles --test-custom-exit-code 42",
       expected: "",
-      exitCode: ExitCode(42))
+      exitCode: ExitCode(42)
+    )
   }
-  
+
   func testMath_Fail() throws {
     try AssertExecuteCommand(
       command: "math --foo",
       expected: """
-            Error: Unknown option '--foo'
-            Usage: math add [--hex-output] [<values> ...]
-              See 'math add --help' for more information.
-            """,
-      exitCode: .validationFailure)
-    
+      Error: Unknown option '--foo'
+      Usage: math add [--hex-output] [<values> ...]
+        See 'math add --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
+
     try AssertExecuteCommand(
       command: "math ZZZ",
       expected: """
-            Error: The value 'ZZZ' is invalid for '<values>'
-            Help:  <values>  A group of integers to operate on.
-            Usage: math add [--hex-output] [<values> ...]
-              See 'math add --help' for more information.
-            """,
-      exitCode: .validationFailure)
+      Error: The value 'ZZZ' is invalid for '<values>'
+      Help:  <values>  A group of integers to operate on.
+      Usage: math add [--hex-output] [<values> ...]
+        See 'math add --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
   }
 }
 
@@ -186,47 +196,56 @@ extension MathExampleTests {
   func testMath_CompletionScript() throws {
     try AssertExecuteCommand(
       command: "math --generate-completion-script=bash",
-      expected: bashCompletionScriptText)
+      expected: bashCompletionScriptText
+    )
     try AssertExecuteCommand(
       command: "math --generate-completion-script bash",
-      expected: bashCompletionScriptText)
+      expected: bashCompletionScriptText
+    )
     try AssertExecuteCommand(
       command: "math --generate-completion-script=zsh",
-      expected: zshCompletionScriptText)
+      expected: zshCompletionScriptText
+    )
     try AssertExecuteCommand(
       command: "math --generate-completion-script zsh",
-      expected: zshCompletionScriptText)
+      expected: zshCompletionScriptText
+    )
     try AssertExecuteCommand(
       command: "math --generate-completion-script=fish",
-      expected: fishCompletionScriptText)
+      expected: fishCompletionScriptText
+    )
     try AssertExecuteCommand(
       command: "math --generate-completion-script fish",
-      expected: fishCompletionScriptText)
+      expected: fishCompletionScriptText
+    )
   }
-  
+
   func testMath_CustomCompletion() throws {
     try AssertExecuteCommand(
       command: "math ---completion stats quantiles -- --custom",
       expected: """
-        hello
-        helicopter
-        heliotrope
-        """)
-    
+      hello
+      helicopter
+      heliotrope
+      """
+    )
+
     try AssertExecuteCommand(
       command: "math ---completion stats quantiles -- --custom h",
       expected: """
-        hello
-        helicopter
-        heliotrope
-        """)
-  
+      hello
+      helicopter
+      heliotrope
+      """
+    )
+
     try AssertExecuteCommand(
       command: "math ---completion stats quantiles -- --custom a",
       expected: """
-        aardvark
-        aaaaalbert
-        """)
+      aardvark
+      aaaaalbert
+      """
+    )
   }
 }
 

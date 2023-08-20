@@ -9,23 +9,22 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class SubcommandEndToEndTests: XCTestCase {
-}
+final class SubcommandEndToEndTests: XCTestCase {}
 
 // MARK: Single value String
 
-fileprivate struct Foo: ParsableCommand {
+private struct Foo: ParsableCommand {
   static var configuration =
     CommandConfiguration(subcommands: [CommandA.self, CommandB.self])
 
   @Option() var name: String
 }
 
-fileprivate struct CommandA: ParsableCommand {
+private struct CommandA: ParsableCommand {
   static var configuration = CommandConfiguration(commandName: "a")
 
   @OptionGroup() var foo: Foo
@@ -33,7 +32,7 @@ fileprivate struct CommandA: ParsableCommand {
   @Option() var bar: Int
 }
 
-fileprivate struct CommandB: ParsableCommand {
+private struct CommandB: ParsableCommand {
   static var configuration = CommandConfiguration(commandName: "b")
 
   @OptionGroup() var foo: Foo
@@ -71,38 +70,37 @@ extension SubcommandEndToEndTests {
     let helpB = Foo.message(for: CleanExit.helpRequest(CommandB.self))
 
     AssertEqualStringsIgnoringTrailingWhitespace("""
-            USAGE: foo --name <name> <subcommand>
+    USAGE: foo --name <name> <subcommand>
 
-            OPTIONS:
-              --name <name>
-              -h, --help              Show help information.
+    OPTIONS:
+      --name <name>
+      -h, --help              Show help information.
 
-            SUBCOMMANDS:
-              a
-              b
+    SUBCOMMANDS:
+      a
+      b
 
-              See 'foo help <subcommand>' for detailed help.
-            """, helpFoo)
+      See 'foo help <subcommand>' for detailed help.
+    """, helpFoo)
     AssertEqualStringsIgnoringTrailingWhitespace("""
-            USAGE: foo a --name <name> --bar <bar>
+    USAGE: foo a --name <name> --bar <bar>
 
-            OPTIONS:
-              --name <name>
-              --bar <bar>
-              -h, --help              Show help information.
+    OPTIONS:
+      --name <name>
+      --bar <bar>
+      -h, --help              Show help information.
 
-            """, helpA)
+    """, helpA)
     AssertEqualStringsIgnoringTrailingWhitespace("""
-            USAGE: foo b --name <name> --baz <baz>
+    USAGE: foo b --name <name> --baz <baz>
 
-            OPTIONS:
-              --name <name>
-              --baz <baz>
-              -h, --help              Show help information.
+    OPTIONS:
+      --name <name>
+      --baz <baz>
+      -h, --help              Show help information.
 
-            """, helpB)
+    """, helpB)
   }
-
 
   func testParsing_SubCommand_fails() throws {
     XCTAssertThrowsError(try Foo.parse(["--name", "Foo", "a", "--baz", "42"]), "'baz' is not an option for the 'a' subcommand.")
@@ -110,9 +108,9 @@ extension SubcommandEndToEndTests {
   }
 }
 
-fileprivate var mathDidRun = false
+private var mathDidRun = false
 
-fileprivate struct Math: ParsableCommand {
+private struct Math: ParsableCommand {
   enum Operation: String, ExpressibleByArgument {
     case add
     case multiply
@@ -170,7 +168,7 @@ struct BaseCommand: ParsableCommand {
 }
 
 extension BaseCommand {
-  struct SubCommand : ParsableCommand {
+  struct SubCommand: ParsableCommand {
     static let subFlagValue = "sub"
 
     static var configuration = CommandConfiguration(
@@ -190,7 +188,7 @@ extension BaseCommand {
 }
 
 extension BaseCommand.SubCommand {
-  struct SubSubCommand : ParsableCommand, TestableParsableArguments {
+  struct SubSubCommand: ParsableCommand, TestableParsableArguments {
     let didValidateExpectation = XCTestExpectation(singleExpectation: "did validate subcommand")
 
     static var configuration = CommandConfiguration(
@@ -225,12 +223,13 @@ extension SubcommandEndToEndTests {
     // provide a valid command and make sure both validates succeed
     AssertParseCommand(BaseCommand.self,
                        BaseCommand.SubCommand.SubSubCommand.self,
-                       ["--base-flag", BaseCommand.baseFlagValue, "sub", "--sub-flag", BaseCommand.SubCommand.subFlagValue, "subsub", "--sub-sub-flag"]) { cmd in
-                        XCTAssertTrue(cmd.subSubFlag)
+                       ["--base-flag", BaseCommand.baseFlagValue, "sub", "--sub-flag", BaseCommand.SubCommand.subFlagValue, "subsub", "--sub-sub-flag"])
+    { cmd in
+      XCTAssertTrue(cmd.subSubFlag)
 
-                        // make sure that the instance of SubSubCommand provided
-                        // had its validate method called, not just that any instance of SubSubCommand was validated
-                        wait(for: [cmd.didValidateExpectation], timeout: 0.1)
+      // make sure that the instance of SubSubCommand provided
+      // had its validate method called, not just that any instance of SubSubCommand was validated
+      wait(for: [cmd.didValidateExpectation], timeout: 0.1)
     }
   }
 }
@@ -240,7 +239,8 @@ extension SubcommandEndToEndTests {
 private struct A: ParsableCommand {
   static var configuration = CommandConfiguration(
     version: "1.0.0",
-    subcommands: [HasVersionFlag.self, NoVersionFlag.self])
+    subcommands: [HasVersionFlag.self, NoVersionFlag.self]
+  )
 
   struct HasVersionFlag: ParsableCommand {
     @Flag var version: Bool = false

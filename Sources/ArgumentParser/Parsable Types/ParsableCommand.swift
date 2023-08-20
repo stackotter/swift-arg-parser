@@ -58,7 +58,7 @@ extension ParsableCommand {
   /// - Parameter arguments: An array of arguments to use for parsing. If
   ///   `arguments` is `nil`, this uses the program's command-line arguments.
   /// - Returns: A new instance of this type, one of its subcommands, or a
-  ///   command type internal to the `ArgumentParser` library.
+  ///   command type internal to the `StackOtterArgParser` library.
   public static func parseAsRoot(
     _ arguments: [String]? = nil
   ) throws -> ParsableCommand {

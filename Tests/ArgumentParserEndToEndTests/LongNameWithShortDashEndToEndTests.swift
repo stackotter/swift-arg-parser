@@ -9,16 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class LongNameWithSingleDashEndToEndTests: XCTestCase {
-}
+final class LongNameWithSingleDashEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   @Flag(name: .customLong("file", withSingleDash: true))
   var file: Bool = false
 
@@ -103,7 +102,7 @@ extension LongNameWithSingleDashEndToEndTests {
   }
 
   func testParsing_invalid() throws {
-    //XCTAssertThrowsError(try Bar.parse(["-fil"]))
+    // XCTAssertThrowsError(try Bar.parse(["-fil"]))
     XCTAssertThrowsError(try Bar.parse(["--file"]))
   }
 }
@@ -120,7 +119,7 @@ extension LongNameWithSingleDashEndToEndTests {
       XCTAssertEqual(issue327.args, ["03ade86c0", "8f2058e3ade86c84ec5b"])
     }
   }
-  
+
   private struct JoinedItem: ParsableCommand {
     @Option(name: .customLong("argWithAnH", withSingleDash: true))
     var arg: String

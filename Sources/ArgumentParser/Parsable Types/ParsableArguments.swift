@@ -25,7 +25,7 @@ import WASILibc
 /// A type that can be parsed from a program's command-line arguments.
 ///
 /// When you implement a `ParsableArguments` type, all properties must be declared with
-/// one of the four property wrappers provided by the `ArgumentParser` library.
+/// one of the four property wrappers provided by the `StackOtterArgParser` library.
 public protocol ParsableArguments: Decodable {
   /// Creates an instance of this parsable type using the definitions
   /// given by each property's wrapper.

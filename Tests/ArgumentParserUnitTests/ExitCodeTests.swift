@@ -9,11 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
-final class ExitCodeTests: XCTestCase {
-}
+final class ExitCodeTests: XCTestCase {}
 
 // MARK: -
 
@@ -23,18 +22,18 @@ extension ExitCodeTests {
   struct C: ParsableCommand {
     static var configuration = CommandConfiguration(version: "v1")
   }
-  
+
   func testExitCodes() {
     XCTAssertEqual(ExitCode.failure, A.exitCode(for: E()))
     XCTAssertEqual(ExitCode.validationFailure, A.exitCode(for: ValidationError("")))
-    
+
     do {
       _ = try A.parse(["-h"])
       XCTFail("Didn't throw help request error.")
     } catch {
       XCTAssertEqual(ExitCode.success, A.exitCode(for: error))
     }
-    
+
     do {
       _ = try A.parse(["--version"])
       XCTFail("Didn't throw unrecognized --version error.")
@@ -53,21 +52,21 @@ extension ExitCodeTests {
   func testExitCode_Success() {
     XCTAssertFalse(A.exitCode(for: E()).isSuccess)
     XCTAssertFalse(A.exitCode(for: ValidationError("")).isSuccess)
-    
+
     do {
       _ = try A.parse(["-h"])
       XCTFail("Didn't throw help request error.")
     } catch {
       XCTAssertTrue(A.exitCode(for: error).isSuccess)
     }
-    
+
     do {
       _ = try A.parse(["--version"])
       XCTFail("Didn't throw unrecognized --version error.")
     } catch {
       XCTAssertFalse(A.exitCode(for: error).isSuccess)
     }
-    
+
     do {
       _ = try C.parse(["--version"])
       XCTFail("Didn't throw version request error.")

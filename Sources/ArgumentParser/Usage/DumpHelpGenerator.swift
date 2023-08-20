@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 @_implementationOnly import Foundation
-@_implementationOnly import ArgumentParserToolInfo
+@_implementationOnly import StackOtterArgParserToolInfo
 
 internal struct DumpHelpGenerator {
   var toolInfo: ToolInfoV0

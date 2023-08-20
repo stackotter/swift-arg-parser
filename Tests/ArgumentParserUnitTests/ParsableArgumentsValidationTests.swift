@@ -9,9 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-@testable import ArgumentParser
 
 final class ParsableArgumentsValidationTests: XCTestCase {
   private struct A: ParsableCommand {
@@ -91,7 +91,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
     } else {
       XCTFail()
     }
-    
+
     if let error = ParsableArgumentsCodingKeyValidator.validate(D.self)
       as? ParsableArgumentsCodingKeyValidator.Error
     {
@@ -202,9 +202,11 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   }
 
   // MARK: ParsableArgumentsUniqueNamesValidator tests
+
   fileprivate let unexpectedErrorMessage = "Expected error of type `ParsableArgumentsUniqueNamesValidator.Error`, but got something else."
 
   // MARK: Names are unique
+
   fileprivate struct DifferentNames: ParsableArguments {
     @Option()
     var foo: String
@@ -218,6 +220,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   }
 
   // MARK: One name is duplicated
+
   fileprivate struct TwoOfTheSameName: ParsableCommand {
     @Option()
     var foo: String
@@ -237,6 +240,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   }
 
   // MARK: Multiple names are duplicated
+
   fileprivate struct MultipleUniquenessViolations: ParsableArguments {
     @Option()
     var foo: String
@@ -264,10 +268,10 @@ final class ParsableArgumentsValidationTests: XCTestCase {
         Multiple (2) `Option` or `Flag` arguments are named \"--bar\".
         Multiple (2) `Option` or `Flag` arguments are named \"--foo\".
         """
-        || error.description == """
-        Multiple (2) `Option` or `Flag` arguments are named \"--foo\".
-        Multiple (2) `Option` or `Flag` arguments are named \"--bar\".
-        """
+          || error.description == """
+          Multiple (2) `Option` or `Flag` arguments are named \"--foo\".
+          Multiple (2) `Option` or `Flag` arguments are named \"--bar\".
+          """
       )
     } else {
       XCTFail(unexpectedErrorMessage)
@@ -275,6 +279,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   }
 
   // MARK: Argument has multiple names and one is duplicated
+
   fileprivate struct MultipleNamesPerArgument: ParsableCommand {
     @Flag(name: [.customShort("v"), .customLong("very-chatty")])
     var verbose: Bool = false
@@ -300,6 +305,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   }
 
   // MARK: One name duplicated several times
+
   fileprivate struct FourDuplicateNames: ParsableArguments {
     @Option()
     var foo: String
@@ -340,7 +346,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
       case forth
       case fith
 
-      static func name(for value: ExampleEnum) -> NameSpecification {
+      static func name(for _: ExampleEnum) -> NameSpecification {
         .short
       }
     }
@@ -375,7 +381,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
   func testUniqueNamesValidation_DuplicatedFlagFirstLetters_LongNames() throws {
     XCTAssertNil(ParsableArgumentsUniqueNamesValidator.validate(DuplicatedFirstLettersLongNames.self))
   }
-  
+
   fileprivate struct HasOneNonsenseFlag: ParsableCommand {
     enum ExampleEnum: String, EnumerableFlag {
       case first
@@ -387,7 +393,7 @@ final class ParsableArgumentsValidationTests: XCTestCase {
 
     @Flag
     var enumFlag: ExampleEnum = .first
-    
+
     @Flag
     var fine: Bool = false
 
@@ -419,7 +425,8 @@ final class ParsableArgumentsValidationTests: XCTestCase {
 
         Affected flag(s):
         --nonsense
-        """)
+        """
+      )
     } else {
       XCTFail(unexpectedErrorMessage)
     }
@@ -456,7 +463,8 @@ final class ParsableArgumentsValidationTests: XCTestCase {
         --stuff
         --nonsense
         --more-nonsense
-        """)
+        """
+      )
     } else {
       XCTFail(unexpectedErrorMessage)
     }

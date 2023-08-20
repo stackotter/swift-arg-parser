@@ -1,4 +1,4 @@
-# ``ArgumentParser/AsyncParsableCommand``
+# ``StackOtterArgParser/AsyncParsableCommand``
 
 To use `async`/`await` code in your commands' `run()` method implementations, follow these steps:
 

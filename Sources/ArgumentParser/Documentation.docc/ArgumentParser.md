@@ -1,19 +1,19 @@
-# ``ArgumentParser``
+# ``StackOtterArgParser``
 
 Straightforward, type-safe argument parsing for Swift.
 
 ## Overview
 
-By using `ArgumentParser`, you can create a command-line interface tool
+By using `StackOtterArgParser`, you can create a command-line interface tool
 by declaring simple Swift types.
 Begin by declaring a type that defines
 the information that you need to collect from the command line.
-Decorate each stored property with one of `ArgumentParser`'s property wrappers,
+Decorate each stored property with one of `StackOtterArgParser`'s property wrappers,
 declare conformance to ``ParsableCommand``,
 and implement your command's logic in its `run()` method.
 
 ```swift
-import ArgumentParser
+import StackOtterArgParser
 
 @main
 struct Repeat: ParsableCommand {
@@ -33,7 +33,7 @@ struct Repeat: ParsableCommand {
 ```
 
 When a user executes your command, 
-the `ArgumentParser` library parses the command-line arguments,
+the `StackOtterArgParser` library parses the command-line arguments,
 instantiates your command type,
 and then either calls your `run()` method or exits with a useful message.
 
@@ -41,8 +41,8 @@ and then either calls your `run()` method or exits with a useful message.
 
 #### Additional Resources
 
-- [`ArgumentParser` on GitHub](https://github.com/apple/swift-argument-parser/)
-- [`ArgumentParser` on the Swift Forums](https://forums.swift.org/c/related-projects/argumentparser/60)
+- [`StackOtterArgParser` on GitHub](https://github.com/apple/swift-argument-parser/)
+- [`StackOtterArgParser` on the Swift Forums](https://forums.swift.org/c/related-projects/argumentparser/60)
 
 ## Topics
 

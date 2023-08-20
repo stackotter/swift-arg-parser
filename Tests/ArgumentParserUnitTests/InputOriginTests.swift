@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
 final class InputOriginTests: XCTestCase {}
 
@@ -24,7 +24,7 @@ extension InputOriginTests {
         XCTAssertFalse(inputOrigin.isDefaultValue)
       }
     }
-    
+
     Assert(elements: [], expectedIsDefaultValue: false)
     Assert(elements: [.defaultValue], expectedIsDefaultValue: true)
     Assert(elements: [.argumentIndex(SplitArguments.Index(inputIndex: 1))], expectedIsDefaultValue: false)

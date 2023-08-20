@@ -9,83 +9,87 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
 
 final class RepeatExampleTests: XCTestCase {
   func testRepeat() throws {
     try AssertExecuteCommand(command: "repeat hello --count 6", expected: """
-        hello
-        hello
-        hello
-        hello
-        hello
-        hello
-        """)
+    hello
+    hello
+    hello
+    hello
+    hello
+    hello
+    """)
   }
-  
+
   func testRepeat_Help() throws {
     let helpText = """
-        USAGE: repeat [--count <count>] [--include-counter] <phrase>
+    USAGE: repeat [--count <count>] [--include-counter] <phrase>
 
-        ARGUMENTS:
-          <phrase>                The phrase to repeat.
+    ARGUMENTS:
+      <phrase>                The phrase to repeat.
 
-        OPTIONS:
-          --count <count>         The number of times to repeat 'phrase'.
-          --include-counter       Include a counter with each repetition.
-          -h, --help              Show help information.
-        """
-    
+    OPTIONS:
+      --count <count>         The number of times to repeat 'phrase'.
+      --include-counter       Include a counter with each repetition.
+      -h, --help              Show help information.
+    """
+
     try AssertExecuteCommand(command: "repeat -h", expected: helpText)
     try AssertExecuteCommand(command: "repeat --help", expected: helpText)
   }
-  
+
   func testRepeat_Fail() throws {
     try AssertExecuteCommand(
       command: "repeat",
       expected: """
-            Error: Missing expected argument '<phrase>'
+      Error: Missing expected argument '<phrase>'
 
-            USAGE: repeat [--count <count>] [--include-counter] <phrase>
+      USAGE: repeat [--count <count>] [--include-counter] <phrase>
 
-            ARGUMENTS:
-              <phrase>                The phrase to repeat.
+      ARGUMENTS:
+        <phrase>                The phrase to repeat.
 
-            OPTIONS:
-              --count <count>         The number of times to repeat 'phrase'.
-              --include-counter       Include a counter with each repetition.
-              -h, --help              Show help information.
-            """,
-      exitCode: .validationFailure)
+      OPTIONS:
+        --count <count>         The number of times to repeat 'phrase'.
+        --include-counter       Include a counter with each repetition.
+        -h, --help              Show help information.
+      """,
+      exitCode: .validationFailure
+    )
 
     try AssertExecuteCommand(
       command: "repeat hello --count",
       expected: """
-            Error: Missing value for '--count <count>'
-            Help:  --count <count>  The number of times to repeat 'phrase'.
-            Usage: repeat [--count <count>] [--include-counter] <phrase>
-              See 'repeat --help' for more information.
-            """,
-      exitCode: .validationFailure)
-    
+      Error: Missing value for '--count <count>'
+      Help:  --count <count>  The number of times to repeat 'phrase'.
+      Usage: repeat [--count <count>] [--include-counter] <phrase>
+        See 'repeat --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
+
     try AssertExecuteCommand(
       command: "repeat hello --count ZZZ",
       expected: """
-            Error: The value 'ZZZ' is invalid for '--count <count>'
-            Help:  --count <count>  The number of times to repeat 'phrase'.
-            Usage: repeat [--count <count>] [--include-counter] <phrase>
-              See 'repeat --help' for more information.
-            """,
-      exitCode: .validationFailure)
-    
+      Error: The value 'ZZZ' is invalid for '--count <count>'
+      Help:  --count <count>  The number of times to repeat 'phrase'.
+      Usage: repeat [--count <count>] [--include-counter] <phrase>
+        See 'repeat --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
+
     try AssertExecuteCommand(
       command: "repeat --version hello",
       expected: """
-            Error: Unknown option '--version'
-            Usage: repeat [--count <count>] [--include-counter] <phrase>
-              See 'repeat --help' for more information.
-            """,
-      exitCode: .validationFailure)
+      Error: Unknown option '--version'
+      Usage: repeat [--count <count>] [--include-counter] <phrase>
+        See 'repeat --help' for more information.
+      """,
+      exitCode: .validationFailure
+    )
   }
 }

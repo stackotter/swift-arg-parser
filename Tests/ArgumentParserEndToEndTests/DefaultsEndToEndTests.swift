@@ -9,21 +9,21 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class DefaultsEndToEndTests: XCTestCase {
-}
+final class DefaultsEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   struct Name: RawRepresentable, ExpressibleByArgument {
     var rawValue: String
   }
+
   @Option
-  var name: Name = Name(rawValue: "A")
+  var name: Name = .init(rawValue: "A")
   @Option
   var max: Int = 3
 }
@@ -54,12 +54,13 @@ extension DefaultsEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   enum Format: String, ExpressibleByArgument {
     case A
     case B
     case C
   }
+
   @Option
   var name: String = "N"
   @Option
@@ -137,7 +138,7 @@ extension DefaultsEndToEndTests {
   func testParsing_Optional_WithMissingValues_5() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
-      XCTAssertEqual(bar.format,.B)
+      XCTAssertEqual(bar.format, .B)
       XCTAssertEqual(bar.foo, "C")
       XCTAssertEqual(bar.bar, nil)
     }
@@ -205,13 +206,14 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate struct Bar_NextInput: ParsableArguments {
+private struct Bar_NextInput: ParsableArguments {
   enum Format: String, ExpressibleByArgument {
     case A
     case B
     case C
     case D = "-d"
   }
+
   @Option(parsing: .unconditional)
   var name: String = "N"
   @Option(parsing: .unconditional)
@@ -253,7 +255,7 @@ extension DefaultsEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Baz: ParsableArguments {
+private struct Baz: ParsableArguments {
   @Option(parsing: .unconditional) var int: Int = 0
   @Option(parsing: .unconditional) var int8: Int8 = 0
   @Option(parsing: .unconditional) var int16: Int16 = 0
@@ -294,7 +296,7 @@ extension DefaultsEndToEndTests {
     AssertParse(Baz.self, [
       "--int", "-1", "--int8", "-2", "--int16", "-3", "--int32", "-4", "--int64", "-5",
       "--uint", "1", "--uint8", "2", "--uint16", "3", "--uint32", "4", "--uint64", "5",
-      "--float", "1.25", "--double", "2.5", "--bool", "true"
+      "--float", "1.25", "--double", "2.5", "--bool", "true",
     ]) { baz in
       XCTAssertEqual(baz.int, -1)
       XCTAssertEqual(baz.int8, -2)
@@ -337,7 +339,7 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate struct Qux: ParsableArguments {
+private struct Qux: ParsableArguments {
   @Argument
   var name: String = "quux"
 }
@@ -373,11 +375,11 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate func exclaim(_ input: String) throws -> String {
+private func exclaim(_ input: String) throws -> String {
   return input + "!"
 }
 
-fileprivate struct OptionPropertyInitArguments_Default: ParsableArguments {
+private struct OptionPropertyInitArguments_Default: ParsableArguments {
   @Option
   var data: String = "test"
 
@@ -385,12 +387,12 @@ fileprivate struct OptionPropertyInitArguments_Default: ParsableArguments {
   var transformedData: String = "test"
 }
 
-fileprivate struct OptionPropertyInitArguments_NoDefault_NoTransform: ParsableArguments {
+private struct OptionPropertyInitArguments_NoDefault_NoTransform: ParsableArguments {
   @Option()
   var data: String
 }
 
-fileprivate struct OptionPropertyInitArguments_NoDefault_Transform: ParsableArguments {
+private struct OptionPropertyInitArguments_NoDefault_Transform: ParsableArguments {
   @Option(transform: exclaim)
   var transformedData: String
 }
@@ -441,23 +443,22 @@ extension DefaultsEndToEndTests {
   }
 }
 
-
-fileprivate struct ArgumentPropertyInitArguments_Default_NoTransform: ParsableArguments {
+private struct ArgumentPropertyInitArguments_Default_NoTransform: ParsableArguments {
   @Argument
   var data: String = "test"
 }
 
-fileprivate struct ArgumentPropertyInitArguments_NoDefault_NoTransform: ParsableArguments {
+private struct ArgumentPropertyInitArguments_NoDefault_NoTransform: ParsableArguments {
   @Argument()
   var data: String
 }
 
-fileprivate struct ArgumentPropertyInitArguments_Default_Transform: ParsableArguments {
+private struct ArgumentPropertyInitArguments_Default_Transform: ParsableArguments {
   @Argument(transform: exclaim)
-    var transformedData: String = "test"
+  var transformedData: String = "test"
 }
 
-fileprivate struct ArgumentPropertyInitArguments_NoDefault_Transform: ParsableArguments {
+private struct ArgumentPropertyInitArguments_NoDefault_Transform: ParsableArguments {
   @Argument(transform: exclaim)
   var transformedData: String
 }
@@ -508,10 +509,10 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate struct Quux: ParsableArguments {
+private struct Quux: ParsableArguments {
   @Option(parsing: .upToNextOption)
   var letters: [String] = ["A", "B"]
-  
+
   @Argument()
   var numbers: [Int] = [1, 2]
 }
@@ -537,12 +538,12 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate struct FlagPropertyInitArguments_Bool_Default: ParsableArguments {
+private struct FlagPropertyInitArguments_Bool_Default: ParsableArguments {
   @Flag(inversion: .prefixedNo)
   var data: Bool = false
 }
 
-fileprivate struct FlagPropertyInitArguments_Bool_NoDefault: ParsableArguments {
+private struct FlagPropertyInitArguments_Bool_NoDefault: ParsableArguments {
   @Flag(inversion: .prefixedNo)
   var data: Bool
 }
@@ -571,22 +572,20 @@ extension DefaultsEndToEndTests {
   }
 }
 
-
-fileprivate enum HasData: EnumerableFlag {
+private enum HasData: EnumerableFlag {
   case noData
   case data
 }
 
-fileprivate struct FlagPropertyInitArguments_EnumerableFlag_Default: ParsableArguments {
+private struct FlagPropertyInitArguments_EnumerableFlag_Default: ParsableArguments {
   @Flag
   var data: HasData = .noData
 }
 
-fileprivate struct FlagPropertyInitArguments_EnumerableFlag_NoDefault: ParsableArguments {
+private struct FlagPropertyInitArguments_EnumerableFlag_NoDefault: ParsableArguments {
   @Flag()
   var data: HasData
 }
-
 
 extension DefaultsEndToEndTests {
   /// Tests that using default property initialization syntax parses the default value for the argument when nothing is provided from the command-line.
@@ -612,21 +611,21 @@ extension DefaultsEndToEndTests {
   }
 }
 
-fileprivate struct Main: ParsableCommand {
+private struct Main: ParsableCommand {
   static var configuration = CommandConfiguration(
     subcommands: [Sub.self],
     defaultSubcommand: Sub.self
   )
-  
+
   struct Options: ParsableArguments {
     @Option(parsing: .upToNextOption)
     var letters: [String] = ["A", "B"]
   }
-  
+
   struct Sub: ParsableCommand {
     @Argument()
     var numbers: [Int] = [1, 2]
-    
+
     @OptionGroup()
     var options: Main.Options
   }
@@ -653,28 +652,27 @@ extension DefaultsEndToEndTests {
   }
 }
 
-
-fileprivate struct RequiredArray_Option_NoTransform: ParsableArguments {
+private struct RequiredArray_Option_NoTransform: ParsableArguments {
   @Option(parsing: .remaining)
   var array: [String]
 }
 
-fileprivate struct RequiredArray_Option_Transform: ParsableArguments {
+private struct RequiredArray_Option_Transform: ParsableArguments {
   @Option(parsing: .remaining, transform: exclaim)
   var array: [String]
 }
 
-fileprivate struct RequiredArray_Argument_NoTransform: ParsableArguments {
+private struct RequiredArray_Argument_NoTransform: ParsableArguments {
   @Argument()
   var array: [String]
 }
 
-fileprivate struct RequiredArray_Argument_Transform: ParsableArguments {
+private struct RequiredArray_Argument_Transform: ParsableArguments {
   @Argument(transform: exclaim)
   var array: [String]
 }
 
-fileprivate struct RequiredArray_Flag: ParsableArguments {
+private struct RequiredArray_Flag: ParsableArguments {
   @Flag
   var array: [HasData]
 }
@@ -718,7 +716,6 @@ extension DefaultsEndToEndTests {
     }
   }
 
-
   /// Tests that not providing an argument for a required array argument produces an error.
   func testParsing_RequiredArray_Argument_NoTransform_NoInput() {
     XCTAssertThrowsError(try RequiredArray_Argument_NoTransform.parse([]))
@@ -757,7 +754,6 @@ extension DefaultsEndToEndTests {
     }
   }
 
-
   /// Tests that not providing an argument for a required array flag produces an error.
   func testParsing_RequiredArray_Flag_NoInput() {
     XCTAssertThrowsError(try RequiredArray_Flag.parse([]))
@@ -779,7 +775,7 @@ extension DefaultsEndToEndTests {
 }
 
 @available(*, deprecated)
-fileprivate struct OptionPropertyDeprecatedInit_NoDefault: ParsableArguments {
+private struct OptionPropertyDeprecatedInit_NoDefault: ParsableArguments {
   @Option(completion: .file(), help: "")
   var data: String = "test"
 }

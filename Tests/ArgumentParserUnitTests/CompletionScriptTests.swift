@@ -9,77 +9,76 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-@testable import ArgumentParser
 
-final class CompletionScriptTests: XCTestCase {
-}
+final class CompletionScriptTests: XCTestCase {}
 
 extension CompletionScriptTests {
   struct Path: ExpressibleByArgument {
     var path: String
-    
+
     init?(argument: String) {
-      self.path = argument
+      path = argument
     }
-    
+
     static var defaultCompletionKind: CompletionKind {
       .file()
     }
   }
-    
+
   enum Kind: String, ExpressibleByArgument, CaseIterable {
     case one, two, three = "custom-three"
   }
-  
+
   struct Base: ParsableCommand {
     @Option(help: "The user's name.") var name: String
     @Option() var kind: Kind
     @Option(completion: .list(["1", "2", "3"])) var otherKind: Kind
-    
+
     @Option() var path1: Path
     @Option() var path2: Path?
     @Option(completion: .list(["a", "b", "c"])) var path3: Path
-    
+
     @Flag(help: .hidden) var verbose = false
   }
 
   func testBase_Zsh() throws {
     let script1 = try CompletionsGenerator(command: Base.self, shell: .zsh)
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(zshBaseCompletions, script1)
-    
+
     let script2 = try CompletionsGenerator(command: Base.self, shellName: "zsh")
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(zshBaseCompletions, script2)
-    
+
     let script3 = Base.completionScript(for: .zsh)
     XCTAssertEqual(zshBaseCompletions, script3)
   }
 
   func testBase_Bash() throws {
     let script1 = try CompletionsGenerator(command: Base.self, shell: .bash)
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(bashBaseCompletions, script1)
-    
+
     let script2 = try CompletionsGenerator(command: Base.self, shellName: "bash")
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(bashBaseCompletions, script2)
-    
+
     let script3 = Base.completionScript(for: .bash)
     XCTAssertEqual(bashBaseCompletions, script3)
   }
 
   func testBase_Fish() throws {
     let script1 = try CompletionsGenerator(command: Base.self, shell: .fish)
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(fishBaseCompletions, script1)
-    
+
     let script2 = try CompletionsGenerator(command: Base.self, shellName: "fish")
-          .generateCompletionScript()
+      .generateCompletionScript()
     XCTAssertEqual(fishBaseCompletions, script2)
-    
+
     let script3 = Base.completionScript(for: .fish)
     XCTAssertEqual(fishBaseCompletions, script3)
   }
@@ -96,7 +95,7 @@ extension CompletionScriptTests {
     @Option(name: .customShort("z"), completion: .custom { _ in ["x", "y", "z"] })
     var three: String
   }
-  
+
   func verifyCustomOutput(
     _ arg: String,
     expectedOutput: String,
@@ -104,21 +103,21 @@ extension CompletionScriptTests {
   ) throws {
     do {
       _ = try Custom.parse(["---completion", "--", arg])
-      XCTFail("Didn't error as expected", file: (file), line: line)
+      XCTFail("Didn't error as expected", file: file, line: line)
     } catch let error as CommandError {
-      guard case .completionScriptCustomResponse(let output) = error.parserError else {
+      guard case let .completionScriptCustomResponse(output) = error.parserError else {
         throw error
       }
-      XCTAssertEqual(expectedOutput, output, file: (file), line: line)
+      XCTAssertEqual(expectedOutput, output, file: file, line: line)
     }
   }
-  
+
   func testCustomCompletions() throws {
     try verifyCustomOutput("-o", expectedOutput: "a\nb\nc")
     try verifyCustomOutput("--one", expectedOutput: "a\nb\nc")
     try verifyCustomOutput("two", expectedOutput: "d\ne\nf")
     try verifyCustomOutput("-z", expectedOutput: "x\ny\nz")
-    
+
     XCTAssertThrowsError(try verifyCustomOutput("--bad", expectedOutput: ""))
   }
 }
@@ -127,7 +126,7 @@ extension CompletionScriptTests {
   struct EscapedCommand: ParsableCommand {
     @Option(help: #"Escaped chars: '[]\."#)
     var one: String
-    
+
     @Argument(completion: .custom { _ in ["d", "e", "f"] })
     var two: String
   }

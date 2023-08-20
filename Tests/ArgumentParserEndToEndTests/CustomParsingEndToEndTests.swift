@@ -9,12 +9,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class ParsingEndToEndTests: XCTestCase {
-}
+final class ParsingEndToEndTests: XCTestCase {}
 
 struct Name {
   var rawValue: String
@@ -35,7 +34,7 @@ extension Array where Element == Name {
 
 // MARK: -
 
-fileprivate struct Foo: ParsableCommand {
+private struct Foo: ParsableCommand {
   enum Subgroup: Equatable {
     case first(Int)
     case second(Int)
@@ -85,7 +84,7 @@ extension ParsingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Bar: ParsableCommand {
+private struct Bar: ParsableCommand {
   @Option(transform: { try Name(rawValue: $0) })
   var firstName: Name = try! Name(rawValue: "none")
 
@@ -124,7 +123,7 @@ extension ParsingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Qux: ParsableCommand {
+private struct Qux: ParsableCommand {
   @Option(transform: { try Name(rawValue: $0) })
   var firstName: [Name] = []
 
@@ -165,4 +164,3 @@ extension ParsingEndToEndTests {
     XCTAssertThrowsError(try Qux.parse(["--first-name", "A", "--first-name", "B", "--first-name", "bad", "C", "D"]))
   }
 }
-

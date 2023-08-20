@@ -9,14 +9,13 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class OptionGroupEndToEndTests: XCTestCase {
-}
+final class OptionGroupEndToEndTests: XCTestCase {}
 
-fileprivate struct Inner: TestableParsableArguments {
+private struct Inner: TestableParsableArguments {
   @Flag(name: [.short, .long])
   var extraVerbiage: Bool = false
   @Option
@@ -33,7 +32,7 @@ fileprivate struct Inner: TestableParsableArguments {
   }
 }
 
-fileprivate struct Outer: TestableParsableArguments {
+private struct Outer: TestableParsableArguments {
   @Flag
   var verbose: Bool = false
   @Argument()
@@ -53,7 +52,7 @@ fileprivate struct Outer: TestableParsableArguments {
   }
 }
 
-fileprivate struct Command: TestableParsableCommand {
+private struct Command: TestableParsableCommand {
   static let configuration = CommandConfiguration(commandName: "testCommand")
 
   @OptionGroup()

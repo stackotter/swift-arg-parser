@@ -16,52 +16,59 @@ var package = Package(
     name: "swift-argument-parser",
     products: [
         .library(
-            name: "ArgumentParser",
-            targets: ["ArgumentParser"]),
+            name: "StackOtterArgParser",
+            targets: ["StackOtterArgParser"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "ArgumentParser",
-            dependencies: ["ArgumentParserToolInfo"],
+            name: "StackOtterArgParser",
+            dependencies: ["StackOtterArgParserToolInfo"],
+            path: "Sources/ArgumentParser",
             exclude: ["CMakeLists.txt"]),
         .target(
-            name: "ArgumentParserTestHelpers",
-            dependencies: ["ArgumentParser", "ArgumentParserToolInfo"],
+            name: "StackOtterArgParserTestHelpers",
+            dependencies: ["StackOtterArgParser", "StackOtterArgParserToolInfo"],
+            path: "Sources/ArgumentParserTestHelpers",
             exclude: ["CMakeLists.txt"]),
         .target(
-            name: "ArgumentParserToolInfo",
+            name: "StackOtterArgParserToolInfo",
             dependencies: [],
+            path: "Sources/ArgumentParserToolInfo",
             exclude: ["CMakeLists.txt"]),
 
         .executableTarget(
             name: "roll",
-            dependencies: ["ArgumentParser"],
+            dependencies: ["StackOtterArgParser"],
             path: "Examples/roll"),
         .executableTarget(
             name: "math",
-            dependencies: ["ArgumentParser"],
+            dependencies: ["StackOtterArgParser"],
             path: "Examples/math"),
         .executableTarget(
             name: "repeat",
-            dependencies: ["ArgumentParser"],
+            dependencies: ["StackOtterArgParser"],
             path: "Examples/repeat"),
 
         .testTarget(
-            name: "ArgumentParserEndToEndTests",
-            dependencies: ["ArgumentParser", "ArgumentParserTestHelpers"],
+            name: "StackOtterArgParserEndToEndTests",
+            dependencies: ["StackOtterArgParser", "StackOtterArgParserTestHelpers"],
+            path: "Tests/ArgumentParserEndToEndTests",
             exclude: ["CMakeLists.txt"]),
         .testTarget(
-            name: "ArgumentParserUnitTests",
-            dependencies: ["ArgumentParser", "ArgumentParserTestHelpers"],
+            name: "StackOtterArgParserUnitTests",
+            dependencies: ["StackOtterArgParser", "StackOtterArgParserTestHelpers"],
+            path: "Tests/ArgumentParserUnitTests",
             exclude: ["CMakeLists.txt"]),
         .testTarget(
-            name: "ArgumentParserPackageManagerTests",
-            dependencies: ["ArgumentParser", "ArgumentParserTestHelpers"],
+            name: "StackOtterArgParserPackageManagerTests",
+            dependencies: ["StackOtterArgParser", "StackOtterArgParserTestHelpers"],
+            path: "Tests/ArgumentParserPackageManagerTests",
             exclude: ["CMakeLists.txt"]),
         .testTarget(
-            name: "ArgumentParserExampleTests",
-            dependencies: ["ArgumentParserTestHelpers"],
+            name: "StackOtterArgParserExampleTests",
+            dependencies: ["StackOtterArgParserTestHelpers"],
+            path: "Tests/ArgumentParserExampleTests",
             resources: [.copy("CountLinesTest.txt")]),
     ]
 )
@@ -70,11 +77,11 @@ var package = Package(
 package.targets.append(contentsOf: [
     .executableTarget(
         name: "count-lines",
-        dependencies: ["ArgumentParser"],
+        dependencies: ["StackOtterArgParser"],
         path: "Examples/count-lines"),
     .executableTarget(
         name: "changelog-authors",
-        dependencies: ["ArgumentParser"],
+        dependencies: ["StackOtterArgParser"],
         path: "Tools/changelog-authors"),
     ])
 #endif

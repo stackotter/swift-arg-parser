@@ -202,7 +202,7 @@ extension ArgumentDefinition {
   /// command line.
   ///
   /// This initializer is used for any property defined on a `ParsableArguments`
-  /// type that isn't decorated with one of ArgumentParser's property wrappers.
+  /// type that isn't decorated with one of StackOtterArgParser's property wrappers.
   init(unparsedKey: String, default defaultValue: Any?) {
     self.init(
       key: InputKey(rawValue: unparsedKey),

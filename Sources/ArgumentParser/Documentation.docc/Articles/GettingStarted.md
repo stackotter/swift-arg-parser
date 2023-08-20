@@ -1,17 +1,17 @@
-# Getting Started with ArgumentParser
+# Getting Started with StackOtterArgParser
 
 Learn to set up and customize a simple command-line tool.
 
 ## Overview
 
-This guide walks through building an example command. You'll learn about the different tools that `ArgumentParser` provides for defining a command's options, customizing the interface, and providing help text for your user.
+This guide walks through building an example command. You'll learn about the different tools that `StackOtterArgParser` provides for defining a command's options, customizing the interface, and providing help text for your user.
 
-## Adding ArgumentParser as a Dependency
+## Adding StackOtterArgParser as a Dependency
 
 Let's write a tool called `count` that reads an input file, counts the words, and writes the result to an output file.
 
 First, we need to add `swift-argument-parser` as a dependency to our package, 
-and then include `"ArgumentParser"` as a dependency for our executable target.
+and then include `"StackOtterArgParser"` as a dependency for our executable target.
 Our "Package.swift" file ends up looking like this:
 
 ```swift
@@ -26,7 +26,7 @@ let package = Package(
     targets: [
         .target(
             name: "count",
-            dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser")]),
+            dependencies: [.product(name: "StackOtterArgParser", package: "swift-argument-parser")]),
     ]
 )
 ```
@@ -43,7 +43,7 @@ Counting words in 'readme.md' and writing the result into 'readme.counts'.
 We'll define the initial version of the command as a type that conforms to the `ParsableCommand` protocol:
 
 ```swift
-import ArgumentParser
+import StackOtterArgParser
 
 @main
 struct Count: ParsableCommand {
@@ -61,11 +61,11 @@ struct Count: ParsableCommand {
 }
 ```
 
-In the code above, the `inputFile` and `outputFile` properties use the `@Argument` property wrapper. `ArgumentParser` uses this wrapper to denote a positional command-line input — because `inputFile` is specified first in the `Count` type, it's the first value read from the command line, and `outputFile` is the second.
+In the code above, the `inputFile` and `outputFile` properties use the `@Argument` property wrapper. `StackOtterArgParser` uses this wrapper to denote a positional command-line input — because `inputFile` is specified first in the `Count` type, it's the first value read from the command line, and `outputFile` is the second.
 
 We've implemented the command's logic in its `run()` method. Here, we're printing out a message confirming the names of the files the user gave. (You can find a full implementation of the completed command at the end of this guide.)
 
-Finally, you designate the `Count` command as the program's entry point by applying the `@main` attribute. When running your command, the `ArgumentParser` library parses the command-line arguments, verifies that they match up with what we've defined in `Count`, and either calls the `run()` method or exits with a helpful message.
+Finally, you designate the `Count` command as the program's entry point by applying the `@main` attribute. When running your command, the `StackOtterArgParser` library parses the command-line arguments, verifies that they match up with what we've defined in `Count`, and either calls the `run()` method or exits with a helpful message.
 
 
 ## Working with Named Options
@@ -173,7 +173,7 @@ The default name specification is `.long`, which uses a property's name with a t
 
 ## Providing Help
 
-`ArgumentParser` automatically generates help for any command when a user provides the `-h` or `--help` flags:
+`StackOtterArgParser` automatically generates help for any command when a user provides the `-h` or `--help` flags:
 
 ```
 % count --help
@@ -222,7 +222,7 @@ OPTIONS:
 As promised, here's the complete `count` command, for your experimentation:
 
 ```swift
-import ArgumentParser
+import StackOtterArgParser
 import Foundation
 
 @main

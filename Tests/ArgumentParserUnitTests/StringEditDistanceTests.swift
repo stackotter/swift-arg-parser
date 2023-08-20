@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
 final class StringEditDistanceTests: XCTestCase {}
 

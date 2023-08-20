@@ -1,4 +1,4 @@
-# ``ArgumentParser/ParsableArguments``
+# ``StackOtterArgParser/ParsableArguments``
 
 ## Topics
 

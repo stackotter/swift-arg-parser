@@ -9,16 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class FlagsEndToEndTests: XCTestCase {
-}
+final class FlagsEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   @Flag
   var verbose: Bool = false
 
@@ -89,7 +88,7 @@ extension FlagsEndToEndTests {
   }
 }
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   @Flag(inversion: .prefixedEnableDisable)
   var index: Bool = false
   @Flag(inversion: .prefixedEnableDisable)
@@ -174,7 +173,7 @@ enum Shape: String, EnumerableFlag {
   case oblong
 }
 
-fileprivate struct Baz: ParsableArguments {
+private struct Baz: ParsableArguments {
   @Flag()
   var color: Color
 
@@ -265,7 +264,7 @@ extension FlagsEndToEndTests {
   }
 }
 
-fileprivate struct Qux: ParsableArguments {
+private struct Qux: ParsableArguments {
   @Flag()
   var color: [Color] = []
 
@@ -302,7 +301,7 @@ extension FlagsEndToEndTests {
   }
 }
 
-fileprivate struct RepeatOK: ParsableArguments {
+private struct RepeatOK: ParsableArguments {
   @Flag(exclusivity: .chooseFirst)
   var color: Color
 

@@ -9,14 +9,13 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
-final class UsageGenerationTests: XCTestCase {
-}
+final class UsageGenerationTests: XCTestCase {}
 
 func _testSynopsis<T: ParsableArguments>(
-  _ type: T.Type,
+  _: T.Type,
   visibility: ArgumentVisibility = .default,
   expected: String,
   file: StaticString = #file,
@@ -121,17 +120,17 @@ extension UsageGenerationTests {
 
   struct I: ParsableArguments {
     enum Color {
-        case red, blue
-        static func transform(_ string: String) throws -> Color {
-          switch string {
-          case "red":
-            return .red
-          case "blue":
-            return .blue
-          default:
-            throw ValidationError("Not a valid string for 'Color'")
-          }
+      case red, blue
+      static func transform(_ string: String) throws -> Color {
+        switch string {
+        case "red":
+          return .red
+        case "blue":
+          return .blue
+        default:
+          throw ValidationError("Not a valid string for 'Color'")
         }
+      }
     }
 
     @Option(transform: Color.transform)
@@ -154,8 +153,9 @@ extension UsageGenerationTests {
 
   struct K: ParsableArguments {
     @Option(
-      name: [.short, .customLong("remote"),  .customLong("when"), .customLong("there")],
-      help: "Help Message")
+      name: [.short, .customLong("remote"), .customLong("when"), .customLong("there")],
+      help: "Help Message"
+    )
     var time: String?
   }
 
@@ -166,7 +166,8 @@ extension UsageGenerationTests {
   struct L: ParsableArguments {
     @Option(
       name: [.short, .short, .customLong("remote", withSingleDash: true), .short, .customLong("remote", withSingleDash: true)],
-      help: "Help Message")
+      help: "Help Message"
+    )
     var time: String?
   }
 
@@ -178,7 +179,7 @@ extension UsageGenerationTests {
     enum Color: String, EnumerableFlag {
       case green, blue, yellow
     }
-    
+
     @Flag var a: Bool = false
     @Flag var b: Bool = false
     @Flag var c: Bool = false
@@ -191,12 +192,12 @@ extension UsageGenerationTests {
     @Flag var j: Bool = false
     @Flag var k: Bool = false
     @Flag var l: Bool = false
-    
+
     @Flag(inversion: .prefixedEnableDisable)
     var optionalBool: Bool?
-    
+
     @Flag var optionalColor: Color?
-    
+
     @Option var option: Bool
     @Argument var input: String
     @Argument var output: String?
@@ -205,14 +206,14 @@ extension UsageGenerationTests {
   func testSynopsisWithTooManyOptions() {
     _testSynopsis(M.self, expected: "example [<options>] --option <option> <input> [<output>]")
   }
-  
+
   struct N: ParsableArguments {
     @Flag var a: Bool = false
     @Flag var b: Bool = false
     var title = "defaulted value"
     var decode = false
   }
-  
+
   func testNonwrappedValues() {
     _testSynopsis(N.self, expected: "example [--a] [--b]")
     _testSynopsis(N.self, visibility: .hidden, expected: "example [--a] [--b]")

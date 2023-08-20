@@ -9,9 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
 /// The goal of this test class is to validate source compatibility. By running
 /// this class's tests, all property wrapper initializers should be called.
@@ -19,7 +19,7 @@ final class SourceCompatEndToEndTests: XCTestCase {}
 
 // MARK: - Property Wrapper Initializers
 
-fileprivate struct AlmostAllArguments: ParsableArguments {
+private struct AlmostAllArguments: ParsableArguments {
   @Argument(help: "") var a_newDefaultSyntax: Int = 0
   @Argument() var a0: Int
   @Argument(help: "") var a1: Int
@@ -58,7 +58,7 @@ fileprivate struct AlmostAllArguments: ParsableArguments {
   @Argument(transform: { _ in 0 }) var e15: [Int] = [1, 2]
 }
 
-fileprivate struct AllOptions: ParsableArguments {
+private struct AllOptions: ParsableArguments {
   @Option(name: .long, parsing: .next, help: "") var a_newDefaultSyntax: Int = 0
   @Option(parsing: .next, help: "") var a1_newDefaultSyntax: Int = 0
   @Option(name: .long, parsing: .next, help: "") var a2: Int
@@ -207,4 +207,3 @@ extension SourceCompatEndToEndTests {
     _ = AllFlags()
   }
 }
-

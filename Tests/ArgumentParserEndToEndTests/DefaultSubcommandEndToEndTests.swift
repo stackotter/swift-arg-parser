@@ -9,12 +9,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class DefaultSubcommandEndToEndTests: XCTestCase {
-}
+final class DefaultSubcommandEndToEndTests: XCTestCase {}
 
 // MARK: -
 
@@ -76,37 +75,37 @@ extension DefaultSubcommandEndToEndTests {
       subcommands: [Plugin.self, NonDefault.self, Other.self],
       defaultSubcommand: Plugin.self
     )
-    
+
     @OptionGroup
     var options: CommonOptions
   }
-  
+
   fileprivate struct CommonOptions: ParsableArguments {
     @Flag(name: [.customLong("verbose"), .customShort("v")],
           help: "Enable verbose aoutput.")
     var verbose = false
   }
-  
+
   fileprivate struct Plugin: ParsableCommand {
     @OptionGroup var options: CommonOptions
     @Argument var pluginName: String
-    
+
     @Argument(parsing: .unconditionalRemaining)
     var pluginArguments: [String] = []
   }
-  
+
   fileprivate struct NonDefault: ParsableCommand {
     @OptionGroup var options: CommonOptions
     @Argument var pluginName: String
-    
+
     @Argument(parsing: .unconditionalRemaining)
     var pluginArguments: [String] = []
   }
-  
+
   fileprivate struct Other: ParsableCommand {
     @OptionGroup var options: CommonOptions
   }
-  
+
   func testRemainingDefaultImplicit() throws {
     AssertParseCommand(MyCommand.self, Plugin.self, ["my-plugin"]) { plugin in
       XCTAssertEqual(plugin.pluginName, "my-plugin")
@@ -184,7 +183,7 @@ extension DefaultSubcommandEndToEndTests {
       XCTAssertEqual(other.options.verbose, true)
     }
   }
-  
+
   func testRemainingDefaultFailure() {
     XCTAssertThrowsError(try MyCommand.parseAsRoot([]))
     XCTAssertThrowsError(try MyCommand.parseAsRoot(["--verbose"]))

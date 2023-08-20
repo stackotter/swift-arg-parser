@@ -1,6 +1,6 @@
-# ``ArgumentParser/ParsableCommand``
+# ``StackOtterArgParser/ParsableCommand``
 
-`ParsableCommand` types are the basic building blocks for command-line tools built using `ArgumentParser`. To create a command, declare properties using the `@Argument`, `@Option`, and `@Flag` property wrappers, or include groups of options with `@OptionGroup`. Finally, implement your command's functionality in the ``run()-7p2fr`` method.
+`ParsableCommand` types are the basic building blocks for command-line tools built using `StackOtterArgParser`. To create a command, declare properties using the `@Argument`, `@Option`, and `@Flag` property wrappers, or include groups of options with `@OptionGroup`. Finally, implement your command's functionality in the ``run()-7p2fr`` method.
 
 ```swift
 @main

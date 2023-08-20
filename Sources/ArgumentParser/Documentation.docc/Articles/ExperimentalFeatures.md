@@ -1,10 +1,10 @@
 # Experimental Features
 
-Learn about ArgumentParser's experimental features.
+Learn about StackOtterArgParser's experimental features.
 
 ## Overview
 
-Command-line programs built using `ArgumentParser` may include some built-in experimental features, available with the prefix `--experimental`. These features should not be considered stable while still prefixed, as future releases may change their behavior or remove them.
+Command-line programs built using `StackOtterArgParser` may include some built-in experimental features, available with the prefix `--experimental`. These features should not be considered stable while still prefixed, as future releases may change their behavior or remove them.
 
 If you have any feedback on experimental features, please [open a GitHub issue][issue].
 

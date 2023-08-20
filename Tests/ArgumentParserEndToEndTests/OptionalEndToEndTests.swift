@@ -9,19 +9,19 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class OptionalEndToEndTests: XCTestCase {
-}
+final class OptionalEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   struct Name: RawRepresentable, ExpressibleByArgument {
     var rawValue: String
   }
+
   @Option() var name: Name?
   @Option() var max: Int?
 }
@@ -32,17 +32,17 @@ extension OptionalEndToEndTests {
       XCTAssertNil(foo.name)
       XCTAssertNil(foo.max)
     }
-    
+
     AssertParse(Foo.self, ["--name", "A"]) { foo in
       XCTAssertEqual(foo.name?.rawValue, "A")
       XCTAssertNil(foo.max)
     }
-    
+
     AssertParse(Foo.self, ["--max", "3"]) { foo in
       XCTAssertNil(foo.name)
       XCTAssertEqual(foo.max, 3)
     }
-    
+
     AssertParse(Foo.self, ["--max", "3", "--name", "A"]) { foo in
       XCTAssertEqual(foo.name?.rawValue, "A")
       XCTAssertEqual(foo.max, 3)
@@ -52,12 +52,13 @@ extension OptionalEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   enum Format: String, ExpressibleByArgument {
     case A
     case B
     case C
   }
+
   @Option() var name: String?
   @Option() var format: Format?
   @Option() var foo: String
@@ -73,7 +74,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithAllValues_2() {
     AssertParse(Bar.self, ["D", "--format", "B", "--foo", "C", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
@@ -82,7 +83,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithAllValues_3() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "D", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
@@ -91,7 +92,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_1() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "D"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -100,7 +101,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_2() {
     AssertParse(Bar.self, ["D", "--format", "B", "--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -109,7 +110,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_3() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "D"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -118,7 +119,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, "D")
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_4() {
     AssertParse(Bar.self, ["--name", "A", "--format", "B", "--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, "A")
@@ -127,16 +128,16 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_5() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
-      XCTAssertEqual(bar.format,.B)
+      XCTAssertEqual(bar.format, .B)
       XCTAssertEqual(bar.foo, "C")
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_6() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
@@ -145,7 +146,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_7() {
     AssertParse(Bar.self, ["--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -154,7 +155,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_8() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -163,7 +164,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_9() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -172,7 +173,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_10() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C"]) { bar in
       XCTAssertEqual(bar.name, nil)
@@ -181,7 +182,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_WithMissingValues_11() {
     AssertParse(Bar.self, ["--format", "B", "--foo", "C", "--name", "A"]) { bar in
       XCTAssertEqual(bar.name, "A")
@@ -190,7 +191,7 @@ extension OptionalEndToEndTests {
       XCTAssertEqual(bar.bar, nil)
     }
   }
-  
+
   func testParsing_Optional_Fails() throws {
     XCTAssertThrowsError(try Bar.parse([]))
     XCTAssertThrowsError(try Bar.parse(["--format", "ZZ", "--foo", "C"]))

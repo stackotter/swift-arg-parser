@@ -4,7 +4,7 @@ Provide custom shell completions for your command-line tool's arguments and opti
 
 ## Overview
 
-`ArgumentParser` provides default completions for any types that it can. For example, an `@Option` property that is a `CaseIterable` type will automatically have the correct values as completion suggestions.
+`StackOtterArgParser` provides default completions for any types that it can. For example, an `@Option` property that is a `CaseIterable` type will automatically have the correct values as completion suggestions.
 
 When declaring an option or argument, you can customize the completions that are offered by specifying a ``CompletionKind``. With this completion kind you can specify that the value should be a file, a directory, or one of a list of strings:
 

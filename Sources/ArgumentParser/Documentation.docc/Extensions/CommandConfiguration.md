@@ -1,4 +1,4 @@
-# ``ArgumentParser/CommandConfiguration``
+# ``StackOtterArgParser/CommandConfiguration``
 
 ## Topics
 

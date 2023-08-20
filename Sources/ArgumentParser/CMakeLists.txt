@@ -1,4 +1,4 @@
-add_library(ArgumentParser
+add_library(StackOtterArgParser
   Completions/BashCompletionsGenerator.swift
   Completions/CompletionsGenerator.swift
   Completions/FishCompletionsGenerator.swift
@@ -43,15 +43,15 @@ add_library(ArgumentParser
   Utilities/SequenceExtensions.swift
   Utilities/StringExtensions.swift
   Utilities/Tree.swift)
+
 # NOTE: workaround for CMake not setting up include flags yet
-set_target_properties(ArgumentParser PROPERTIES
+set_target_properties(StackOtterArgParser PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
-target_compile_options(ArgumentParser PRIVATE
+target_compile_options(StackOtterArgParser PRIVATE
   $<$<BOOL:${BUILD_TESTING}>:-enable-testing>)
-target_link_libraries(ArgumentParser PRIVATE
+target_link_libraries(StackOtterArgParser PRIVATE
   $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
-  ArgumentParserToolInfo)
+  StackOtterArgParserToolInfo)
 
-
-_install_target(ArgumentParser)
-set_property(GLOBAL APPEND PROPERTY ArgumentParser_EXPORTS ArgumentParser)
+_install_target(StackOtterArgParser)
+set_property(GLOBAL APPEND PROPERTY StackOtterArgParser_EXPORTS StackOtterArgParser)

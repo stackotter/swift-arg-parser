@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
 final class StringSnakeCaseTests: XCTestCase {}
 
@@ -50,13 +50,13 @@ extension StringSnakeCaseTests {
       ("RADAR", "radar"),
       ("Sample", "sample"),
       ("_Sample", "_sample"),
-      ("_IAmAnAPPDeveloper", "_i_am_an_app_developer")
+      ("_IAmAnAPPDeveloper", "_i_am_an_app_developer"),
     ]
     for test in toSnakeCaseTests {
       XCTAssertEqual(test.0.convertedToSnakeCase(), test.1)
     }
   }
-  
+
   func testStringSnakeCaseWithSeparator() {
     let toSnakeCaseTests = [
       ("simpleOneTwo", "simple-one-two"),
@@ -92,7 +92,7 @@ extension StringSnakeCaseTests {
       ("RADAR", "radar"),
       ("Sample", "sample"),
       ("_Sample", "_-sample"),
-      ("_IAmAnAPPDeveloper", "_-i-am-an-app-developer")
+      ("_IAmAnAPPDeveloper", "_-i-am-an-app-developer"),
     ]
     for test in toSnakeCaseTests {
       XCTAssertEqual(test.0.convertedToSnakeCase(separator: "-"), test.1)

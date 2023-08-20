@@ -9,16 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class ShortNameEndToEndTests: XCTestCase {
-}
+final class ShortNameEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   @Flag(name: [.long, .short])
   var verbose: Bool = false
 
@@ -87,7 +86,7 @@ extension ShortNameEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   @Option(name: [.long, .short])
   var name: String
 

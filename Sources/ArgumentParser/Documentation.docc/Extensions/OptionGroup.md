@@ -1,4 +1,4 @@
-# ``ArgumentParser/OptionGroup``
+# ``StackOtterArgParser/OptionGroup``
 
 ## Topics
 

@@ -9,7 +9,7 @@ and then declare conformance to `ParsableCommand` and add the `@main` attribute.
 Finally, implement your command's logic in the `run()` method.
 
 ```swift
-import ArgumentParser
+import StackOtterArgParser
 
 @main
 struct Repeat: ParsableCommand {

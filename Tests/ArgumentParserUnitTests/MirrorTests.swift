@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import StackOtterArgParser
 import XCTest
-@testable import ArgumentParser
 
 final class MirrorTests: XCTestCase {}
 
@@ -20,6 +20,7 @@ extension MirrorTests {
     let bar: String
     let baz: String!
   }
+
   func testRealValue() {
     func checkChildValue(_ child: Mirror.Child, expectedString: String?) {
       if let expectedString = expectedString {
@@ -50,7 +51,7 @@ extension MirrorTests {
         }
       }
     }
-    
+
     performTest(foo: "foo", baz: "baz")
     performTest(foo: "foo", baz: nil)
     performTest(foo: nil, baz: "baz")

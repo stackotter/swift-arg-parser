@@ -9,16 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
 
-final class RepeatingEndToEndTests: XCTestCase {
-}
+final class RepeatingEndToEndTests: XCTestCase {}
 
 // MARK: -
 
-fileprivate struct Bar: ParsableArguments {
+private struct Bar: ParsableArguments {
   @Option() var name: [String] = []
 }
 
@@ -43,7 +42,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Foo: ParsableArguments {
+private struct Foo: ParsableArguments {
   @Flag()
   var verbose: Int
 }
@@ -64,7 +63,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Baz: ParsableArguments {
+private struct Baz: ParsableArguments {
   @Flag var verbose: Bool = false
   @Option(parsing: .remaining) var names: [String] = []
 }
@@ -129,11 +128,11 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Outer: ParsableCommand {
+private struct Outer: ParsableCommand {
   static let configuration = CommandConfiguration(subcommands: [Inner.self])
 }
 
-fileprivate struct Inner: ParsableCommand {
+private struct Inner: ParsableCommand {
   @Flag
   var verbose: Bool = false
 
@@ -145,8 +144,8 @@ extension RepeatingEndToEndTests {
   func testParsing_subcommandRemaining() {
     AssertParseCommand(
       Outer.self, Inner.self,
-      ["inner", "--verbose", "one", "two", "--", "three", "--other"])
-    { inner in
+      ["inner", "--verbose", "one", "two", "--", "three", "--other"]
+    ) { inner in
       XCTAssertTrue(inner.verbose)
       XCTAssertEqual(inner.files, ["one", "two", "--", "three", "--other"])
     }
@@ -155,7 +154,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Qux: ParsableArguments {
+private struct Qux: ParsableArguments {
   @Option(parsing: .upToNextOption) var names: [String] = []
   @Flag var verbose: Bool = false
   @Argument() var extra: String?
@@ -223,7 +222,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Wobble: ParsableArguments {
+private struct Wobble: ParsableArguments {
   struct WobbleError: Error {}
   struct Name: Equatable {
     var value: String
@@ -233,6 +232,7 @@ fileprivate struct Wobble: ParsableArguments {
       self.value = value
     }
   }
+
   @Option(transform: Name.init) var names: [Name] = []
   @Option(parsing: .upToNextOption, transform: Name.init) var moreNames: [Name] = []
   @Option(parsing: .remaining, transform: Name.init) var evenMoreNames: [Name] = []
@@ -299,7 +299,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Weazle: ParsableArguments {
+private struct Weazle: ParsableArguments {
   @Flag var verbose: Bool = false
   @Argument() var names: [String] = []
 }
@@ -325,7 +325,7 @@ extension RepeatingEndToEndTests {
 
 // MARK: -
 
-fileprivate struct Foozle: ParsableArguments {
+private struct Foozle: ParsableArguments {
   @Flag var verbose: Bool = false
   @Flag(name: .customShort("f")) var useFiles: Bool = false
   @Flag(name: .customShort("i")) var useStandardInput: Bool = false
@@ -421,11 +421,11 @@ struct PerformanceTest: ParsableCommand {
   mutating func run() throws { print(bundleIdentifiers) }
 }
 
-fileprivate func argumentGenerator(_ count: Int) -> [String] {
-  Array((1...count).map { ["-b", "bundle-id\($0)"] }.joined())
+private func argumentGenerator(_ count: Int) -> [String] {
+  Array((1 ... count).map { ["-b", "bundle-id\($0)"] }.joined())
 }
 
-fileprivate func time(_ body: () -> Void) -> TimeInterval {
+private func time(_ body: () -> Void) -> TimeInterval {
   let start = Date()
   body()
   return Date().timeIntervalSince(start)

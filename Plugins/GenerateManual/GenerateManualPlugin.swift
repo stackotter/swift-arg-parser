@@ -18,7 +18,7 @@ struct GenerateManualPlugin: CommandPlugin {
     arguments: [String]
   ) async throws {
     // Locate generation tool.
-    let generationToolFile = try context.tool(named: "generate-manual").path
+    let generationToolFile = try context.tool(named: "gen-manual").path
 
     // Create an extractor to extract plugin-only arguments from the `arguments`
     // array.
@@ -41,7 +41,7 @@ struct GenerateManualPlugin: CommandPlugin {
     }
 
     // Extract configuration argument before making it to the
-    // "generate-manual" tool.
+    // "gen-manual" tool.
     let configuration = try extractor.configuration()
 
     // Build all products first.
@@ -55,7 +55,7 @@ struct GenerateManualPlugin: CommandPlugin {
     }
     print("Built package in \(configuration) mode")
 
-    // Run generate-manual on all executable artifacts.
+    // Run gen-manual on all executable artifacts.
     for builtArtifact in buildResult.builtArtifacts {
       // Skip non-executable targets
       guard builtArtifact.kind == .executable else { continue }

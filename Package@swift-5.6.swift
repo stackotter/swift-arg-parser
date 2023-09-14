@@ -46,9 +46,9 @@ var package = Package(
             name: "GenerateManual",
             capability: .command(
                 intent: .custom(
-                    verb: "generate-manual",
+                    verb: "gen-manual",
                     description: "Generate a manual entry for a specified target.")),
-            dependencies: ["generate-manual"]),
+            dependencies: ["gen-manual"]),
 
         // Examples
         .executableTarget(
@@ -66,7 +66,7 @@ var package = Package(
 
         // Tools
         .executableTarget(
-            name: "generate-manual",
+            name: "gen-manual",
             dependencies: ["StackOtterArgParser", "StackOtterArgParserToolInfo"],
             path: "Tools/generate-manual"),
     

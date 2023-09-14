@@ -421,7 +421,7 @@ extension XCTest {
 
     let commandURL = debugURL.appendingPathComponent(command)
     var command = [
-      "generate-manual", commandURL.path,
+      "gen-manual", commandURL.path,
       "--date", "1996-05-12",
       "--section", "9",
       "--authors", "Jane Appleseed",

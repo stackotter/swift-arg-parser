@@ -23,7 +23,7 @@ struct GenerateManual: ParsableCommand {
   }
 
   static let configuration = CommandConfiguration(
-    commandName: "generate-manual",
+    commandName: "gen-manual",
     abstract: "Generate a manual for the provided tool.")
 
   @Argument(help: "Tool to generate manual for.")

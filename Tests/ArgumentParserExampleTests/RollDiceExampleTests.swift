@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import ArgumentParserTestHelpers
+import StackOtterArgParserTestHelpers
 
 final class RollDiceExampleTests: XCTestCase {
   func testRollDice() throws {

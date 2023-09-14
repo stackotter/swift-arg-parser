@@ -19,7 +19,7 @@ public protocol ExpressibleByArgument {
   /// command-line tool's help screen.
   var defaultValueDescription: String { get }
   
-  /// An array of all possible strings to that can convert to value of this
+  /// An array of all possible strings that can convert to a value of this
   /// type.
   ///
   /// The default implementation of this property returns an empty array.
@@ -54,9 +54,15 @@ extension ExpressibleByArgument where Self: CaseIterable {
   }
 }
 
-extension ExpressibleByArgument where Self: CaseIterable, Self: RawRepresentable, RawValue == String {
+extension ExpressibleByArgument where Self: CaseIterable, Self: RawRepresentable, RawValue: ExpressibleByArgument {
   public static var allValueStrings: [String] {
-    self.allCases.map { $0.rawValue }
+    self.allCases.map(\.rawValue.defaultValueDescription)
+  }
+}
+
+extension ExpressibleByArgument where Self: RawRepresentable, RawValue: ExpressibleByArgument {
+  public var defaultValueDescription: String {
+    rawValue.defaultValueDescription
   }
 }
 
@@ -99,9 +105,3 @@ extension Float: ExpressibleByArgument {}
 extension Double: ExpressibleByArgument {}
 
 extension Bool: ExpressibleByArgument {}
-
-extension Array where Element: ExpressibleByArgument {
-  var defaultValueDescription: String {
-	map { $0.defaultValueDescription }.joined(separator: ", ")
-  }
-}

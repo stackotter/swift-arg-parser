@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-@testable import ArgumentParser
-import ArgumentParserTestHelpers
+@testable import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 
 extension SplitArguments.InputIndex: ExpressibleByIntegerLiteral {
   public init(integerLiteral value: Int) {

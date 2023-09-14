@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
+import StackOtterArgParserTestHelpers
+import StackOtterArgParser
 
 final class OptionalEndToEndTests: XCTestCase {
 }
@@ -58,10 +58,10 @@ fileprivate struct Bar: ParsableArguments {
     case B
     case C
   }
-  @Option() var name: String?
-  @Option() var format: Format?
+  @Option() var name: String? = nil
+  @Option() var format: Format? = nil
   @Option() var foo: String
-  @Argument() var bar: String?
+  @Argument() var bar: String? = nil
 }
 
 extension OptionalEndToEndTests {

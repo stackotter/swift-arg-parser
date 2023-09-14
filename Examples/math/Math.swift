@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ArgumentParser
+import StackOtterArgParser
 
 @main
 struct Math: ParsableCommand {

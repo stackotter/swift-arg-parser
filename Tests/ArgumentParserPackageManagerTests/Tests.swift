@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import ArgumentParser
-import ArgumentParserTestHelpers
+import StackOtterArgParser
+import StackOtterArgParserTestHelpers
 
 final class Tests: XCTestCase {
 }

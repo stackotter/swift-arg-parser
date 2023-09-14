@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
+import StackOtterArgParserTestHelpers
+import StackOtterArgParser
 
 final class ShortNameEndToEndTests: XCTestCase {
 }

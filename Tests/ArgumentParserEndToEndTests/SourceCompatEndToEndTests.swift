@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import ArgumentParserTestHelpers
-import ArgumentParser
+import StackOtterArgParserTestHelpers
+import StackOtterArgParser
 
 /// The goal of this test class is to validate source compatibility. By running
 /// this class's tests, all property wrapper initializers should be called.

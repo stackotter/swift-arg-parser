@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ArgumentParser
+import StackOtterArgParser
 
 extension Package {
   /// Manipulate configuration of the package

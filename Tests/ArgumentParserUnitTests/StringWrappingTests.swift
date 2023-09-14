@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-@testable import ArgumentParser
+@testable import StackOtterArgParser
 
 final class StringWrappingTests: XCTestCase {}
 

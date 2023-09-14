@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@_implementationOnly import Foundation
+@_implementationOnly import protocol Foundation.LocalizedError
 
 struct UsageGenerator {
   var toolName: String
@@ -22,10 +22,10 @@ extension UsageGenerator {
     self.init(toolName: toolName, definition: definition)
   }
   
-  init(toolName: String, parsable: ParsableArguments, visibility: ArgumentVisibility) {
+  init(toolName: String, parsable: ParsableArguments, visibility: ArgumentVisibility, parent: InputKey?) {
     self.init(
       toolName: toolName,
-      definition: ArgumentSet(type(of: parsable), visibility: visibility))
+      definition: ArgumentSet(type(of: parsable), visibility: visibility, parent: parent))
   }
   
   init(toolName: String, definition: [ArgumentSet]) {
@@ -115,6 +115,9 @@ extension ArgumentDefinition {
     }
     if help.options.contains(.isOptional) {
       synopsis = "[\(synopsis)]"
+    }
+    if parsingStrategy == .postTerminator {
+      synopsis = "-- \(synopsis)"
     }
     return synopsis
   }

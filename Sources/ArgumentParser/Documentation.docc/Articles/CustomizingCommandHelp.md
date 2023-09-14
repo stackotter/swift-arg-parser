@@ -22,10 +22,10 @@ struct Repeat: ParsableCommand {
     var phrase: String
 
     @Option(help: "How many times to repeat.")
-    var count: Int?
+    var count: Int? = nil
 
     mutating func run() throws {
-        for _ in 0..<(count ?? Int.max) {
+        for _ in 0..<(count ?? 2) {
             print(phrase) 
         }
     }

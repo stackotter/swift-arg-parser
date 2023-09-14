@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ArgumentParser
+import StackOtterArgParser
 
 struct Options: ParsableArguments {
   @Option(help: "Specify build/cache directory")

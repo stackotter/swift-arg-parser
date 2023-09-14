@@ -11,7 +11,7 @@
 
 #if os(macOS)
 
-import ArgumentParser
+import StackOtterArgParser
 import Foundation
 
 // MARK: Command

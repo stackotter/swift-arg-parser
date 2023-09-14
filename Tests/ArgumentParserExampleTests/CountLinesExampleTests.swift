@@ -9,10 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(macOS) && swift(>=5.6)
+#if os(macOS) && swift(>=5.7)
 
 import XCTest
-import ArgumentParserTestHelpers
+import StackOtterArgParserTestHelpers
 
 final class CountLinesExampleTests: XCTestCase {
   func testCountLines() throws {
@@ -25,7 +25,7 @@ final class CountLinesExampleTests: XCTestCase {
   func testCountLinesHelp() throws {
     guard #available(macOS 12, *) else { return }
     let helpText = """
-        USAGE: count-lines <input-file> [--prefix <prefix>] [--verbose]
+        USAGE: count-lines [<input-file>] [--prefix <prefix>] [--verbose]
 
         ARGUMENTS:
           <input-file>            A file to count lines in. If omitted, counts the

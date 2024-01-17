@@ -14,12 +14,12 @@ import StackOtterArgParserToolInfo
 import Foundation
 
 @main
-struct GenerateManual: ParsableCommand {
+struct GenManual: ParsableCommand {
   enum Error: Swift.Error {
     case failedToRunSubprocess(error: Swift.Error)
     case unableToParseToolOutput(error: Swift.Error)
     case unsupportedDumpHelpVersion(expected: Int, found: Int)
-    case failedToGenerateManualPages(error: Swift.Error)
+    case failedToGenManualPages(error: Swift.Error)
   }
 
   static let configuration = CommandConfiguration(
@@ -51,7 +51,7 @@ struct GenerateManual: ParsableCommand {
     }
 
     if outputDirectory != "-" {
-      // outputDirectory must already exist, `GenerateManual` will not create it.
+      // outputDirectory must already exist, `GenManual` will not create it.
       var objcBool: ObjCBool = true
       guard FileManager.default.fileExists(atPath: outputDirectory, isDirectory: &objcBool) else {
         throw ValidationError("Output directory \(outputDirectory) does not exist")
@@ -100,7 +100,7 @@ struct GenerateManual: ParsableCommand {
           savingTo: URL(fileURLWithPath: outputDirectory))
       }
     } catch {
-      throw Error.failedToGenerateManualPages(error: error)
+      throw Error.failedToGenManualPages(error: error)
     }
   }
 

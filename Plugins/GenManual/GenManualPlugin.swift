@@ -12,7 +12,7 @@
 import PackagePlugin
 
 @main
-struct GenerateManualPlugin: CommandPlugin {
+struct GenManualPlugin: CommandPlugin {
   func performCommand(
     context: PluginContext,
     arguments: [String]
@@ -33,7 +33,7 @@ struct GenerateManualPlugin: CommandPlugin {
                                   Tool build configuration used to generate the
                                   manual. (default: release)
 
-        NOTE: The "GenerateManual" plugin handles passing the "<tool>" and
+        NOTE: The "GenManual" plugin handles passing the "<tool>" and
         "--output-directory <output-directory>" arguments. Manually supplying
         these arguments will result in a runtime failure.
         """)
@@ -51,7 +51,7 @@ struct GenerateManualPlugin: CommandPlugin {
       parameters: .init(configuration: configuration))
 
     guard buildResult.succeeded else {
-      throw GenerateManualPluginError.buildFailed(buildResult.logText)
+      throw GenManualPluginError.buildFailed(buildResult.logText)
     }
     print("Built package in \(configuration) mode")
 

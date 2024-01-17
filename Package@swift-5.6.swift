@@ -19,8 +19,8 @@ var package = Package(
             name: "StackOtterArgParser",
             targets: ["StackOtterArgParser"]),
         .plugin(
-            name: "GenerateManual",
-            targets: ["GenerateManual"]),
+            name: "GenManual",
+            targets: ["GenManual"]),
     ],
     dependencies: [],
     targets: [
@@ -43,7 +43,7 @@ var package = Package(
 
         // Plugins
         .plugin(
-            name: "GenerateManual",
+            name: "GenManual",
             capability: .command(
                 intent: .custom(
                     verb: "gen-manual",
@@ -68,7 +68,7 @@ var package = Package(
         .executableTarget(
             name: "gen-manual",
             dependencies: ["StackOtterArgParser", "StackOtterArgParserToolInfo"],
-            path: "Tools/generate-manual"),
+            path: "Tools/gen-manual"),
     
         // Tests
         .testTarget(
@@ -82,9 +82,9 @@ var package = Package(
             path: "Tests/ArgumentParserExampleTests",
             resources: [.copy("CountLinesTest.txt")]),
         .testTarget(
-            name: "StackOtterArgParserGenerateManualTests",
+            name: "StackOtterArgParserGenManualTests",
             dependencies: ["StackOtterArgParserTestHelpers"],
-            path: "Tests/ArgumentParserGenerateManualTests"),
+            path: "Tests/ArgumentParserGenManualTests"),
         .testTarget(
             name: "StackOtterArgParserPackageManagerTests",
             dependencies: ["StackOtterArgParser", "StackOtterArgParserTestHelpers"],

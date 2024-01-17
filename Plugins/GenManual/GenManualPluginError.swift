@@ -12,7 +12,7 @@
 import Foundation
 import PackagePlugin
 
-enum GenerateManualPluginError: Error {
+enum GenManualPluginError: Error {
   case unknownBuildConfiguration(String)
   case buildFailed(String)
   case createOutputDirectoryFailed(Error)
@@ -20,7 +20,7 @@ enum GenerateManualPluginError: Error {
   case subprocessFailedError(Path, Error)
 }
 
-extension GenerateManualPluginError: CustomStringConvertible {
+extension GenManualPluginError: CustomStringConvertible {
   var description: String {
     switch self {
     case .unknownBuildConfiguration(let configuration):
@@ -45,6 +45,6 @@ extension GenerateManualPluginError: CustomStringConvertible {
   }
 }
 
-extension GenerateManualPluginError: LocalizedError {
+extension GenManualPluginError: LocalizedError {
   var errorDescription: String? { self.description }
 }

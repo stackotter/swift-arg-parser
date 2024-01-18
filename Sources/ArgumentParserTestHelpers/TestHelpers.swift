@@ -408,7 +408,7 @@ extension XCTest {
     #endif
   }
 
-  public func AssertGenerateManual(
+  public func AssertGenManual(
     multiPage: Bool,
     command: String,
     expected: String,

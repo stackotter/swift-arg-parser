@@ -26,7 +26,7 @@ extension ArgumentExtractor {
       case "release":
         return .release
       default:
-        throw GenerateManualPluginError
+        throw GenManualPluginError
           .unknownBuildConfiguration(configurationString)
       }
     case .none:
@@ -42,7 +42,7 @@ extension Path {
         atPath: self.string,
         withIntermediateDirectories: true)
     } catch {
-      throw GenerateManualPluginError.createOutputDirectoryFailed(error)
+      throw GenManualPluginError.createOutputDirectoryFailed(error)
     }
   }
 
@@ -57,11 +57,11 @@ extension Path {
         process.terminationReason == .exit,
         process.terminationStatus == 0
       else {
-        throw GenerateManualPluginError.subprocessFailedNonZeroExit(
+        throw GenManualPluginError.subprocessFailedNonZeroExit(
           self, process.terminationStatus)
       }
     } catch {
-      throw GenerateManualPluginError.subprocessFailedError(self, error)
+      throw GenManualPluginError.subprocessFailedError(self, error)
     }
   }
 }
